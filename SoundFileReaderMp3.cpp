@@ -218,7 +218,7 @@ sf::Uint64 SoundFileReaderMp3::read(sf::Int16* samples, sf::Uint64 maxCount) {
 			    , maxBytes-offset      // number of decoded bytes we want to get out: this calculation is why casting to byte size was a good idea
 				, &numDecodedBytes);         // this tells us the size of the decoded data. it will never exceed the size we requested in the above parameter
 		offset += numDecodedBytes;     // set sample offset for next call
-		std::cout << "decoded " << numDecodedBytes << " bytes from leftover input. offset into samples: " << offset << " / " << maxBytes << std::endl;
+	//	std::cout << "decoded " << numDecodedBytes << " bytes from leftover input. offset into samples: " << offset << " / " << maxBytes << std::endl;
 
 	} // NEED_MORE is returned when no more input is available and the output array is not full yet. not sure about ERR though. probably when output is full.
 	while (ret != MPG123_NEED_MORE && ret != MPG123_ERR && offset < maxBytes);
@@ -227,7 +227,7 @@ sf::Uint64 SoundFileReaderMp3::read(sf::Int16* samples, sf::Uint64 maxCount) {
 	{
 		// now run the normal reading-decoding loop
 		sf::Int64 bytesReadFromStream = m_stream->read(m_streambuffer, m_streambufferSize);
-		std::cout << "read " << bytesReadFromStream << " bytes from stream" << std::endl;
+		//std::cout << "read " << bytesReadFromStream << " bytes from stream" << std::endl;
 		if (bytesReadFromStream <= 0) {
 			std::cout << (bytesReadFromStream == 0 ? "stream empty" : ("stream error: " + bytesReadFromStream)) << std::endl;
 			break;
@@ -238,14 +238,14 @@ sf::Uint64 SoundFileReaderMp3::read(sf::Int16* samples, sf::Uint64 maxCount) {
 		std::size_t numDecodedBytes = 0;
 		ret = mpg123_decode(m_handle, m_streambuffer, bytesReadFromStream, &byteSamples[offset], maxBytes-offset, &numDecodedBytes);
 		offset += numDecodedBytes;
-		std::cout << "decoded " << bytesReadFromStream << " to " << numDecodedBytes << " decoded bytes. total decoded bytes: "
-				  << offset << " / " << maxBytes << std::endl;
+		//std::cout << "decoded " << bytesReadFromStream << " to " << numDecodedBytes << " decoded bytes. total decoded bytes: "
+			//	  << offset << " / " << maxBytes << std::endl;
 	}
 
 	std::size_t totalSamples = offset/sizeof(short);
 
-	std::cout << "samples delivered: " << totalSamples << " of " << maxCount << " requested"<< std::endl;
-	std::cout << "total bytes read: " << totalReadBytes << std::endl;
+	//std::cout << "samples delivered: " << totalSamples << " of " << maxCount << " requested"<< std::endl;
+	//std::cout << "total bytes read: " << totalReadBytes << std::endl;
 	std::cout << "READ: SUCCESS" << std::endl;
 
 	return totalSamples;
