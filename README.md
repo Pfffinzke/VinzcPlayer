@@ -4,7 +4,9 @@ Then run make. It will build executable 'audioexe'
 
 If SFML is already on your LD_LIBRARY_PATH, invoke program using:
 
-	./audioexe <filename>
+	./VinzcPlayer <filename>
+	
+nb: for now it read from a directory hardcoded but in future release your just give the directory name
 
 Otherwise invoke using:
 
