@@ -14,6 +14,7 @@
 #include <vector>
 #include <cstring>
 #include <unistd.h>
+#include <cmath>
 
 #include "SoundFileReaderMp3.hpp"
 #include "mp3reader.hpp"
@@ -272,6 +273,8 @@ int ChosenSong(int vote[]){
 
     while (counter <= 4)
     {
+
+
         if (largest < vote[counter])
         {
             largest = vote[counter];
@@ -282,6 +285,7 @@ int ChosenSong(int vote[]){
 	//in case no song have been voted for, we take the first one
 	if (largest == 0)
 	{
+	
         largest = 1;
 		next_song=1;
     }
@@ -363,11 +367,13 @@ int main() {
 		sf::Event event;
 		Autoplay(music);
 		sf::Time elapsed = music.getPlayingOffset();
+		sf::Time start_voting_time = sf::seconds(10.0f);
+		sf::Time end_voting_time = sf::seconds(30.0f);
 		//std::cout << "song time. " << song_lenght.asSeconds() << "remaining time :  " << elapsed.asSeconds() << std::endl;
 
 
 		// propose 4 choices
-		if((elapsed.asSeconds()>=10)&&(elapsed.asSeconds()<=30)) {
+		if((elapsed.asSeconds()>=start_voting_time.asSeconds())&&(elapsed.asSeconds()<=end_voting_time.asSeconds())) {
 			choice = true;
 			}
 			else 
@@ -380,56 +386,6 @@ int main() {
 			next_chosen_song = ChosenSong(vote);
 			next_bool=true;
 			}
-
-		// vote with joystick
-		//"Y" button 
-		if ((sf::Joystick::isButtonPressed(0, 0))&& choice){ 
-		bool Y_pressed = true;
-			while (Y_pressed){
-				sf::Joystick::update();
-				if (!sf::Joystick::isButtonPressed(0, 0)){
-					vote[1]++;
-					Y_pressed = false;
-				}
-			}
-		}
-
-		//"B" button 
-		if ((sf::Joystick::isButtonPressed(0, 1))&& choice){ 
-		bool B_pressed = true;
-			while (B_pressed){
-				sf::Joystick::update();
-				if (!sf::Joystick::isButtonPressed(0, 1)){
-					vote[2]++;
-					B_pressed = false;
-				}
-			}
-		}
-
-
-		//"A" button 
-		if ((sf::Joystick::isButtonPressed(0, 2))&& choice){ 
-		bool A_pressed = true;
-			while (A_pressed){
-				sf::Joystick::update();
-				if (!sf::Joystick::isButtonPressed(0, 2)){
-					vote[3]++;
-					A_pressed = false;
-				}
-			}
-		}
-
-		//"X" button 
-		if ((sf::Joystick::isButtonPressed(0, 3))&& choice){ 
-		bool X_pressed = true;
-			while (X_pressed){
-				sf::Joystick::update();
-				if (!sf::Joystick::isButtonPressed(0, 3)){
-					vote[4]++;
-					X_pressed = false;
-				}
-			}
-		}
 
 		//next_song_pool(music);	
 		while (window.pollEvent(event)) {
@@ -479,6 +435,46 @@ int main() {
 					default:
 						break;
 				}
+			}
+			else if(event.type == sf::Event::JoystickButtonPressed) {
+				switch (event.joystickButton.button) {
+					case 0 :
+						if (choice) {
+							vote[1]++;
+						}
+						break;
+
+					case 1 :
+						if (choice) {
+							vote[2]++;
+						}
+						break;
+
+					case 2 :
+						if (choice) {
+							vote[3]++;
+						}
+						break;
+
+					case 3 :
+						if (choice) {
+							vote[4]++;
+						}
+						break;
+
+					case 4:
+						if (!NextSong(music)) {
+							std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
+							return EXIT_FAILURE;
+						}
+						break;
+
+					default:
+						break;
+				}
+			
+
+
 			}
 		}
 
@@ -553,11 +549,15 @@ int main() {
 		sf::Text Choice4_CurrentText;
 		sf::Text Choice4_Vote;
 
+		sf::Text Vote_CurrentText;
+		sf::Text Vote_Time;
+
 		sf::Text Next_Title;
 		sf::Text Next_Artist;
 		sf::Text Next_CurrentText;
 
 		// update Choices info
+
 
 		Choice1_CurrentText.setFont(font);
 		Choice1_CurrentText.setString("Next song 1");
@@ -583,8 +583,8 @@ int main() {
 		Choice1_Vote.setFont(font_neon);
 		Choice1_Vote.setString(std::to_string(vote[1]));
 		Choice1_Vote.setColor(sf::Color::Blue);
-		Choice1_Vote.setPosition(50.0f, 410.0f);
-		Choice1_Vote.setCharacterSize(24);
+		Choice1_Vote.setPosition(50.0f, 430.0f);
+		Choice1_Vote.setCharacterSize(20+(vote[1]/2));
 		Choice1_Vote.setStyle(sf::Text::Bold);
 
 		Choice2_CurrentText.setFont(font);
@@ -611,8 +611,8 @@ int main() {
 		Choice2_Vote.setFont(font_neon);
 		Choice2_Vote.setString(std::to_string(vote[2]));
 		Choice2_Vote.setColor(sf::Color::Blue);
-		Choice2_Vote.setPosition(300.0f, 410.0f);
-		Choice2_Vote.setCharacterSize(24);
+		Choice2_Vote.setPosition(300.0f, 430.0f);
+		Choice2_Vote.setCharacterSize(20+(vote[2]/2));
 		Choice2_Vote.setStyle(sf::Text::Bold);
 
 		Choice3_CurrentText.setFont(font);
@@ -639,8 +639,8 @@ int main() {
 		Choice3_Vote.setFont(font_neon);
 		Choice3_Vote.setString(std::to_string(vote[3]));
 		Choice3_Vote.setColor(sf::Color::Blue);
-		Choice3_Vote.setPosition(550.0f, 410.0f);
-		Choice3_Vote.setCharacterSize(24);
+		Choice3_Vote.setPosition(550.0f, 430.0f);
+		Choice3_Vote.setCharacterSize(20+(vote[3]/2));
 		Choice3_Vote.setStyle(sf::Text::Bold);
 
 		Choice4_CurrentText.setFont(font);
@@ -667,8 +667,8 @@ int main() {
 		Choice4_Vote.setFont(font_neon);
 		Choice4_Vote.setString(std::to_string(vote[4]));
 		Choice4_Vote.setColor(sf::Color::Blue);
-		Choice4_Vote.setPosition(800.0f, 410.0f);
-		Choice4_Vote.setCharacterSize(24);
+		Choice4_Vote.setPosition(800.0f, 430.0f);
+		Choice4_Vote.setCharacterSize(20+(vote[4]/2));
 		Choice4_Vote.setStyle(sf::Text::Bold);
 
 
@@ -698,6 +698,22 @@ int main() {
 
 		// print option text
 	if(choice==true){
+		// set voting time
+		Vote_CurrentText.setFont(font_neon);
+		Vote_CurrentText.setString("TIME TO VOTE");
+		Vote_CurrentText.setColor(sf::Color::Green);
+		Vote_CurrentText.setPosition(700.0f, 250.0f);
+		Vote_CurrentText.setCharacterSize(28);
+		Vote_CurrentText.setStyle(sf::Text::Bold);
+
+		Vote_Time.setFont(font_neon);
+		Vote_Time.setString(std::to_string((int)(end_voting_time.asSeconds()-elapsed.asSeconds())));
+		Vote_Time.setColor(sf::Color::Red);
+		Vote_Time.setPosition(750.0f, 300.0f);
+		Vote_Time.setCharacterSize(44);
+		Vote_Time.setStyle(sf::Text::Bold);
+
+		//display text
 		window.draw(Choice1_Artist);
 		window.draw(Choice1_Title);
 		window.draw(Choice1_CurrentText);
@@ -714,6 +730,8 @@ int main() {
 		window.draw(Choice4_Title);
 		window.draw(Choice4_CurrentText);
 		window.draw(Choice4_Vote);
+		window.draw(Vote_CurrentText);
+		window.draw(Vote_Time);
 	}
 	// print next song
 	if(next_bool==true){
