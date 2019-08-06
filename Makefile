@@ -23,10 +23,13 @@ LIBS     := -L$(LIBMPG123) -lmpg123 -L$(LIBSFML) -lsfml-graphics -lsfml-window -
 AUDIOEXE := VinzcPlayer
 
 $(AUDIOEXE): Main.o
-	$(CC) $(CFLAGS) $< -o $@ SoundFileReaderMp3.o $(LIBS)
+	$(CC) $(CFLAGS) $< -o $@ SoundFileReaderMp3.o tagHelper.o $(LIBS)
 
-Main.o: mp3reader.cpp mp3reader.hpp SoundFileReaderMp3.o
-	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+Main.o: mp3reader.cpp mp3reader.hpp SoundFileReaderMp3.o tagHelper.o
+	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@ -l/id3lib/bin/Release/id3lib
+
+tagHelper.o: tagHelper.cpp tagHelper.h
+	$(CC) $(CFLAGS) -c $< -o $@ -l/id3lib/bin/Release/id3lib
 
 SoundFileReaderMp3.o: SoundFileReaderMp3.cpp SoundFileReaderMp3.hpp
 	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
