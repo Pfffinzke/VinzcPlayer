@@ -7,7 +7,7 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
-#include "json/json.h"
+#include <jsoncpp/json/json.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
@@ -343,8 +343,8 @@ int main(int argc, char* argv[]) {
 		sprite.setTexture(texture);
 	//	dimensions = texture.getSize();
 
-		dimensions.x = 1200;
-		dimensions.y = 800;
+		dimensions.x = 800;
+		dimensions.y = 600;
 	
 
 	// Create the main window
@@ -504,21 +504,21 @@ int main(int argc, char* argv[]) {
 		Artist.setFont(font_neon);
 		Artist.setString(CurrentArtistText);
 		Artist.setColor(sf::Color::White);
-		Artist.setPosition(700.0f, 70.0f);
+		Artist.setPosition(400.0f, 70.0f);
 		Artist.setCharacterSize(24);
 		Artist.setStyle(sf::Text::Bold);
 
 		Title.setFont(font_neon);
 		Title.setString(CurrentSongText);
 		Title.setColor(sf::Color::White);
-		Title.setPosition(700.0f, 90.0f);
+		Title.setPosition(400.0f, 90.0f);
 		Title.setCharacterSize(24);
 		Title.setStyle(sf::Text::Bold);
 		
 		CurrentText.setFont(font);
 		CurrentText.setString("Current playing song");
 		CurrentText.setColor(sf::Color::Cyan);
-		CurrentText.setPosition(700.0f, 45.0f);
+		CurrentText.setPosition(400.0f, 45.0f);
 		CurrentText.setCharacterSize(26);
 		CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
@@ -560,112 +560,112 @@ int main(int argc, char* argv[]) {
 		Choice1_CurrentText.setFont(font);
 		Choice1_CurrentText.setString("Next song 1");
 		Choice1_CurrentText.setColor(sf::Color::Green);
-		Choice1_CurrentText.setPosition(800.0f, 150.0f);
+		Choice1_CurrentText.setPosition(400.0f, 150.0f);
 		Choice1_CurrentText.setCharacterSize(26);
 		Choice1_CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
 		Choice1_Artist.setFont(font_neon);
 		Choice1_Artist.setString(root[song_choice[1]]["artist"].asString());
 		Choice1_Artist.setColor(sf::Color::White);
-		Choice1_Artist.setPosition(800.0f, 180.0f);
+		Choice1_Artist.setPosition(400.0f, 180.0f);
 		Choice1_Artist.setCharacterSize(24);
 		Choice1_Artist.setStyle(sf::Text::Bold);
 
 		Choice1_Title.setFont(font_neon);
 		Choice1_Title.setString(root[song_choice[1]]["Song Name"].asString());
 		Choice1_Title.setColor(sf::Color::White);
-		Choice1_Title.setPosition(800.0f, 200.0f);
+		Choice1_Title.setPosition(400.0f, 200.0f);
 		Choice1_Title.setCharacterSize(24);
 		Choice1_Title.setStyle(sf::Text::Bold);
 
 		Choice1_Vote.setFont(font_neon);
 		Choice1_Vote.setString(std::to_string(vote[1]));
 		Choice1_Vote.setColor(sf::Color::Yellow);
-		Choice1_Vote.setPosition(1100.0f, 150.0f);
+		Choice1_Vote.setPosition(700.0f, 150.0f);
 		Choice1_Vote.setCharacterSize(20+(vote[1]/2));
 		Choice1_Vote.setStyle(sf::Text::Bold);
 
 		Choice2_CurrentText.setFont(font);
 		Choice2_CurrentText.setString("Next song 2");
 		Choice2_CurrentText.setColor(sf::Color::Green);
-		Choice2_CurrentText.setPosition(800.0f, 250.0f);
+		Choice2_CurrentText.setPosition(400.0f, 250.0f);
 		Choice2_CurrentText.setCharacterSize(26);
 		Choice2_CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
 		Choice2_Artist.setFont(font_neon);
 		Choice2_Artist.setString(root[song_choice[2]]["artist"].asString());
 		Choice2_Artist.setColor(sf::Color::White);
-		Choice2_Artist.setPosition(800.0f, 280.0f);
+		Choice2_Artist.setPosition(400.0f, 280.0f);
 		Choice2_Artist.setCharacterSize(24);
 		Choice2_Artist.setStyle(sf::Text::Bold);
 
 		Choice2_Title.setFont(font_neon);
 		Choice2_Title.setString(root[song_choice[2]]["Song Name"].asString());
 		Choice2_Title.setColor(sf::Color::White);
-		Choice2_Title.setPosition(800.0f, 300.0f);
+		Choice2_Title.setPosition(400.0f, 300.0f);
 		Choice2_Title.setCharacterSize(24);
 		Choice2_Title.setStyle(sf::Text::Bold);
 
 		Choice2_Vote.setFont(font_neon);
 		Choice2_Vote.setString(std::to_string(vote[2]));
 		Choice2_Vote.setColor(sf::Color::Yellow);
-		Choice2_Vote.setPosition(1100.0f, 250.0f);
+		Choice2_Vote.setPosition(700.0f, 250.0f);
 		Choice2_Vote.setCharacterSize(20+(vote[2]/2));
 		Choice2_Vote.setStyle(sf::Text::Bold);
 
 		Choice3_CurrentText.setFont(font);
 		Choice3_CurrentText.setString("Next song 3");
 		Choice3_CurrentText.setColor(sf::Color::Green);
-		Choice3_CurrentText.setPosition(800.0f, 350.0f);
+		Choice3_CurrentText.setPosition(400.0f, 350.0f);
 		Choice3_CurrentText.setCharacterSize(26);
 		Choice3_CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
 		Choice3_Artist.setFont(font_neon);
 		Choice3_Artist.setString(root[song_choice[3]]["artist"].asString());
 		Choice3_Artist.setColor(sf::Color::White);
-		Choice3_Artist.setPosition(800.0f, 380.0f);
+		Choice3_Artist.setPosition(400.0f, 380.0f);
 		Choice3_Artist.setCharacterSize(24);
 		Choice3_Artist.setStyle(sf::Text::Bold);
 
 		Choice3_Title.setFont(font_neon);
 		Choice3_Title.setString(root[song_choice[3]]["Song Name"].asString());
 		Choice3_Title.setColor(sf::Color::White);
-		Choice3_Title.setPosition(800.0f, 400.0f);
+		Choice3_Title.setPosition(400.0f, 400.0f);
 		Choice3_Title.setCharacterSize(24);
 		Choice3_Title.setStyle(sf::Text::Bold);
 
 		Choice3_Vote.setFont(font_neon);
 		Choice3_Vote.setString(std::to_string(vote[3]));
 		Choice3_Vote.setColor(sf::Color::Yellow);
-		Choice3_Vote.setPosition(1100.0f, 350.0f);
+		Choice3_Vote.setPosition(700.0f, 350.0f);
 		Choice3_Vote.setCharacterSize(20+(vote[3]/2));
 		Choice3_Vote.setStyle(sf::Text::Bold);
 
 		Choice4_CurrentText.setFont(font);
 		Choice4_CurrentText.setString("Next song 4");
 		Choice4_CurrentText.setColor(sf::Color::Green);
-		Choice4_CurrentText.setPosition(800.0f, 450.0f);
+		Choice4_CurrentText.setPosition(400.0f, 450.0f);
 		Choice4_CurrentText.setCharacterSize(26);
 		Choice4_CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
 		Choice4_Artist.setFont(font_neon);
 		Choice4_Artist.setString(root[song_choice[4]]["artist"].asString());
 		Choice4_Artist.setColor(sf::Color::White);
-		Choice4_Artist.setPosition(800.0f, 480.0f);
+		Choice4_Artist.setPosition(400.0f, 480.0f);
 		Choice4_Artist.setCharacterSize(24);
 		Choice4_Artist.setStyle(sf::Text::Bold);
 
 		Choice4_Title.setFont(font_neon);
 		Choice4_Title.setString(root[song_choice[4]]["Song Name"].asString());
 		Choice4_Title.setColor(sf::Color::White);
-		Choice4_Title.setPosition(800.0f, 500.0f);
+		Choice4_Title.setPosition(400.0f, 500.0f);
 		Choice4_Title.setCharacterSize(24);
 		Choice4_Title.setStyle(sf::Text::Bold);
 
 		Choice4_Vote.setFont(font_neon);
 		Choice4_Vote.setString(std::to_string(vote[4]));
 		Choice4_Vote.setColor(sf::Color::Yellow);
-		Choice4_Vote.setPosition(1100.0f, 450.0f);
+		Choice4_Vote.setPosition(700.0f, 450.0f);
 		Choice4_Vote.setCharacterSize(20+(vote[4]/2));
 		Choice4_Vote.setStyle(sf::Text::Bold);
 
@@ -675,21 +675,21 @@ int main(int argc, char* argv[]) {
 		Next_CurrentText.setFont(font);
 		Next_CurrentText.setString("Next song");
 		Next_CurrentText.setColor(sf::Color::Green);
-		Next_CurrentText.setPosition(700.0f, 150.0f);
+		Next_CurrentText.setPosition(400.0f, 150.0f);
 		Next_CurrentText.setCharacterSize(26);
 		Next_CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
 		Next_Artist.setFont(font_neon);
 		Next_Artist.setString(root[song_choice[next_chosen_song]]["artist"].asString());
 		Next_Artist.setColor(sf::Color::White);
-		Next_Artist.setPosition(700.0f, 180.0f);
+		Next_Artist.setPosition(400.0f, 180.0f);
 		Next_Artist.setCharacterSize(24);
 		Next_Artist.setStyle(sf::Text::Bold);
 
 		Next_Title.setFont(font_neon);
 		Next_Title.setString(root[song_choice[next_chosen_song]]["Song Name"].asString());
 		Next_Title.setColor(sf::Color::White);
-		Next_Title.setPosition(700.0f, 200.0f);
+		Next_Title.setPosition(400.0f, 200.0f);
 		Next_Title.setCharacterSize(24);
 		Next_Title.setStyle(sf::Text::Bold);
 	
@@ -699,15 +699,15 @@ int main(int argc, char* argv[]) {
 		// set voting time
 		Vote_CurrentText.setFont(font_neon);
 		Vote_CurrentText.setString("TIME TO VOTE");
-		Vote_CurrentText.setColor(sf::Color::Green);
-		Vote_CurrentText.setPosition(300.0f, 650.0f);
+		Vote_CurrentText.setColor(sf::Color::Red);
+		Vote_CurrentText.setPosition(300.0f, 400.0f);
 		Vote_CurrentText.setCharacterSize(28);
 		Vote_CurrentText.setStyle(sf::Text::Bold);
 
 		Vote_Time.setFont(font_neon);
 		Vote_Time.setString(std::to_string((int)(end_voting_time.asSeconds()-elapsed.asSeconds())));
 		Vote_Time.setColor(sf::Color::Red);
-		Vote_Time.setPosition(350.0f, 700.0f);
+		Vote_Time.setPosition(350.0f, 450.0f);
 		Vote_Time.setCharacterSize(44);
 		Vote_Time.setStyle(sf::Text::Bold);
 
