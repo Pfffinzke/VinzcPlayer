@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <vector>
 #include <cstring>
+#include <unistd.h>
 
 #include "SoundFileReaderMp3.hpp"
 #include "mp3reader.hpp"
@@ -36,10 +37,14 @@ int number_song;
 int played_song;
 std::string filename;
 int current_song;
-int next_random_song;
+
 int song_choice[4];
+int vote[5]={0,0,0,0,0};
+
+int next_chosen_song;
 
 bool choice;
+bool next_bool;
 /*function... might want it in some class?*/
 
 
@@ -132,7 +137,6 @@ int read_json()
 					cerr << "Could not read after seeking, Aborting " << endl;
 					return 1;
 				}
-				cout << "Data " << tagStruct.title << endl;
 				mp3File.close();
 
 				root[i]["Song Name"] = tagStruct.title ;
@@ -172,18 +176,17 @@ void togglePlayPause(sf::Music& music) {
 	}
 }
 
-
-int NextSong(sf::Music& music) {
+int FirstSong(sf::Music& music) {
 	music.pause();
 	std::random_device rd; // obtain a random number from hardware
     std::mt19937 eng(rd()); // seed the generator
     std::uniform_int_distribution<> distr(0, number_song);
-	next_random_song = distr(eng);
+	int first_random_song = distr(eng);
 
-	while ((root[next_random_song]["play"]==1)&&(played_song<=number_song)){
-	next_random_song = distr(eng);
+	while ((root[first_random_song]["play"]==1)&&(played_song<=number_song)){
+	first_random_song = distr(eng);
 	}
-	current_song = next_random_song;
+	current_song = first_random_song;
 	filename = root[current_song]["path"].asString();
 
 	if (!music.openFromFile(filename)) {
@@ -196,23 +199,49 @@ int NextSong(sf::Music& music) {
 	played_song++;
 	NextSongPool(music);
 
+	return 1;
+
+}
+
+int NextSong(sf::Music& music) {
+	music.pause();
+	next_bool=false;
+	current_song = song_choice[next_chosen_song];
+	filename = root[current_song]["path"].asString();
+	if (!music.openFromFile(filename)) {
+		std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
+		return EXIT_FAILURE;
+	}
+	
+	root[current_song]["play"] = 1;
+	music.play();
+	// chosen song is played reset vote
+			vote[1]=0;
+			vote[2]=0;
+			vote[3]=0;
+			vote[4]=0;
+	played_song++;
+	NextSongPool(music);
+
+return 1;
+
 }
 
 
 void NextSongPool(sf::Music& music) {
 	std::random_device rd; // obtain a random number from hardware
     std::mt19937 eng(rd()); // seed the generator
-    std::uniform_int_distribution<> distr(0, number_song);
+    std::uniform_int_distribution<> distr(0, number_song-1);
 		
 	for (unsigned int i = 1;i <= 4;i++) {
-		
-		next_random_song = distr(eng);
+
+		int next_random_song = distr(eng);
 		// as long as we don't find a non played song or non selected song, we random the next song
 		while (((root[next_random_song]["play"]==1)||(root[next_random_song]["choice"]==1))&&(played_song+3<=number_song)){
 			
 			next_random_song = distr(eng);
 		}
-		
+	
 		song_choice[i] = next_random_song;
 		root[song_choice[i]]["choice"] = 1;
 		//next_random_song = distr(eng);
@@ -224,7 +253,7 @@ void NextSongPool(sf::Music& music) {
 		root[i]["choice"]=0;
 	}
 
-	if(true) return;
+	return;
 	
 }
 
@@ -233,6 +262,32 @@ void Autoplay(sf::Music& music) {
 	if (music.getStatus()!=sf::Music::Status::Playing)
 	NextSong(music);
 	
+}
+
+
+int ChosenSong(int vote[]){
+	int counter = 1;
+    int largest = 0;
+	int next_song;
+
+    while (counter <= 4)
+    {
+        if (largest < vote[counter])
+        {
+            largest = vote[counter];
+			next_song=counter;
+        }
+		counter++;
+    }
+	//in case no song have been voted for, we take the first one
+	if (largest == 0)
+	{
+        largest = 1;
+		next_song=1;
+    }
+
+	counter=0;
+	return next_song;
 }
 
 int main() {
@@ -254,9 +309,9 @@ int main() {
 	// Load a music to play
 	sf::Music music;
 
-	
 
-	if (!NextSong(music)) {
+
+	if (!FirstSong(music)) {
 		std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
 		return EXIT_FAILURE;
 	}
@@ -284,12 +339,18 @@ int main() {
 		sprite.setTexture(texture);
 	//	dimensions = texture.getSize();
 
-		dimensions.x = 800;
-		dimensions.y = 600;
+		dimensions.x = 1200;
+		dimensions.y = 800;
 	
 
 	// Create the main window
 	sf::RenderWindow window(sf::VideoMode(dimensions.x, dimensions.y), "SFML window");
+
+		//get information about the joystick
+	sf::Joystick::Identification id = sf::Joystick::getIdentification(0);
+	std::cout << "\nVendor ID: " << id.vendorId << "\nProduct ID: " << id.productId << std::endl;
+	sf::String controller("Joystick Use: " + id.name);
+	window.setTitle(controller);//easily tells us what controller is connected
 
 	// Start the music
 	//music.play();
@@ -312,10 +373,67 @@ int main() {
 			else 
 			{
 			choice = false;
+
 			}
+		if((elapsed.asSeconds()>=30)&&(elapsed.asSeconds()<=40)) {
+
+			next_chosen_song = ChosenSong(vote);
+			next_bool=true;
+			}
+
+		// vote with joystick
+		//"Y" button 
+		if ((sf::Joystick::isButtonPressed(0, 0))&& choice){ 
+		bool Y_pressed = true;
+			while (Y_pressed){
+				sf::Joystick::update();
+				if (!sf::Joystick::isButtonPressed(0, 0)){
+					vote[1]++;
+					Y_pressed = false;
+				}
+			}
+		}
+
+		//"B" button 
+		if ((sf::Joystick::isButtonPressed(0, 1))&& choice){ 
+		bool B_pressed = true;
+			while (B_pressed){
+				sf::Joystick::update();
+				if (!sf::Joystick::isButtonPressed(0, 1)){
+					vote[2]++;
+					B_pressed = false;
+				}
+			}
+		}
+
+
+		//"A" button 
+		if ((sf::Joystick::isButtonPressed(0, 2))&& choice){ 
+		bool A_pressed = true;
+			while (A_pressed){
+				sf::Joystick::update();
+				if (!sf::Joystick::isButtonPressed(0, 2)){
+					vote[3]++;
+					A_pressed = false;
+				}
+			}
+		}
+
+		//"X" button 
+		if ((sf::Joystick::isButtonPressed(0, 3))&& choice){ 
+		bool X_pressed = true;
+			while (X_pressed){
+				sf::Joystick::update();
+				if (!sf::Joystick::isButtonPressed(0, 3)){
+					vote[4]++;
+					X_pressed = false;
+				}
+			}
+		}
 
 		//next_song_pool(music);	
 		while (window.pollEvent(event)) {
+
 			if (event.type == sf::Event::Closed) {
 				window.close();
 			} else if(event.type == sf::Event::KeyPressed) {
@@ -333,6 +451,31 @@ int main() {
 		return EXIT_FAILURE;
 					}
 						break;
+
+					case sf::Keyboard::A:
+						if (choice) {
+							vote[1]++;
+					}
+						break;
+
+					case sf::Keyboard::Z:
+						if (choice) {
+							vote[2]++;
+					}
+						break;
+
+					case sf::Keyboard::E:
+						if (choice) {
+							vote[3]++;
+					}
+						break;
+
+					case sf::Keyboard::R:
+						if (choice) {
+							vote[4]++;
+					}
+						break;
+
 					default:
 						break;
 				}
@@ -346,31 +489,42 @@ int main() {
 		window.draw(sprite);
 		sf::Font font;
 		font.loadFromFile("ALBA.ttf");
+		sf::Font font_neon;
+		font_neon.loadFromFile("Neon.ttf");
+		float thickness = 4.f;
+		
+
 		sf::Text Title;
 		sf::Text Artist;
 		sf::Text CurrentText;
 		sf::String CurrentSongText = root[current_song]["Song Name"].asString();
 		sf::String CurrentArtistText = root[current_song]["artist"].asString();
+		//Title.setOutlineColor(sf::Color::White);
+    	//Title.setOutlineThickness(thickness);
+		//Artist.setOutlineColor(sf::Color::White);
+    	//Artist.setOutlineThickness(thickness);
+		//CurrentText.setOutlineColor(sf::Color::White);
+    	//CurrentText.setOutlineThickness(thickness);
 
 
-		Artist.setFont(font);
+		Artist.setFont(font_neon);
 		Artist.setString(CurrentArtistText);
 		Artist.setColor(sf::Color::White);
-		Artist.setPosition(400.0f, 70.0f);
+		Artist.setPosition(700.0f, 70.0f);
 		Artist.setCharacterSize(24);
 		Artist.setStyle(sf::Text::Bold);
 
-		Title.setFont(font);
+		Title.setFont(font_neon);
 		Title.setString(CurrentSongText);
 		Title.setColor(sf::Color::White);
-		Title.setPosition(400.0f, 90.0f);
+		Title.setPosition(700.0f, 90.0f);
 		Title.setCharacterSize(24);
 		Title.setStyle(sf::Text::Bold);
 		
 		CurrentText.setFont(font);
 		CurrentText.setString("Current playing song");
 		CurrentText.setColor(sf::Color::Red);
-		CurrentText.setPosition(400.0f, 45.0f);
+		CurrentText.setPosition(700.0f, 45.0f);
 		CurrentText.setCharacterSize(26);
 		CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
@@ -382,18 +536,26 @@ int main() {
 		sf::Text Choice1_Title;
 		sf::Text Choice1_Artist;
 		sf::Text Choice1_CurrentText;
+		sf::Text Choice1_Vote;
 
 		sf::Text Choice2_Title;
 		sf::Text Choice2_Artist;
 		sf::Text Choice2_CurrentText;
+		sf::Text Choice2_Vote;
 
 		sf::Text Choice3_Title;
 		sf::Text Choice3_Artist;
 		sf::Text Choice3_CurrentText;
+		sf::Text Choice3_Vote;
 
 		sf::Text Choice4_Title;
 		sf::Text Choice4_Artist;
 		sf::Text Choice4_CurrentText;
+		sf::Text Choice4_Vote;
+
+		sf::Text Next_Title;
+		sf::Text Next_Artist;
+		sf::Text Next_CurrentText;
 
 		// update Choices info
 
@@ -404,99 +566,162 @@ int main() {
 		Choice1_CurrentText.setCharacterSize(26);
 		Choice1_CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
-		Choice1_Artist.setFont(font);
+		Choice1_Artist.setFont(font_neon);
 		Choice1_Artist.setString(root[song_choice[1]]["artist"].asString());
 		Choice1_Artist.setColor(sf::Color::Blue);
 		Choice1_Artist.setPosition(50.0f, 370.0f);
 		Choice1_Artist.setCharacterSize(24);
 		Choice1_Artist.setStyle(sf::Text::Bold);
 
-		Choice1_Title.setFont(font);
+		Choice1_Title.setFont(font_neon);
 		Choice1_Title.setString(root[song_choice[1]]["Song Name"].asString());
 		Choice1_Title.setColor(sf::Color::Blue);
 		Choice1_Title.setPosition(50.0f, 390.0f);
 		Choice1_Title.setCharacterSize(24);
 		Choice1_Title.setStyle(sf::Text::Bold);
 
+		Choice1_Vote.setFont(font_neon);
+		Choice1_Vote.setString(std::to_string(vote[1]));
+		Choice1_Vote.setColor(sf::Color::Blue);
+		Choice1_Vote.setPosition(50.0f, 410.0f);
+		Choice1_Vote.setCharacterSize(24);
+		Choice1_Vote.setStyle(sf::Text::Bold);
+
 		Choice2_CurrentText.setFont(font);
 		Choice2_CurrentText.setString("Next song 2");
 		Choice2_CurrentText.setColor(sf::Color::Green);
-		Choice2_CurrentText.setPosition(200.0f, 345.0f);
+		Choice2_CurrentText.setPosition(300.0f, 345.0f);
 		Choice2_CurrentText.setCharacterSize(26);
 		Choice2_CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
-		Choice2_Artist.setFont(font);
+		Choice2_Artist.setFont(font_neon);
 		Choice2_Artist.setString(root[song_choice[2]]["artist"].asString());
 		Choice2_Artist.setColor(sf::Color::Blue);
-		Choice2_Artist.setPosition(200.0f, 370.0f);
+		Choice2_Artist.setPosition(300.0f, 370.0f);
 		Choice2_Artist.setCharacterSize(24);
 		Choice2_Artist.setStyle(sf::Text::Bold);
 
-		Choice2_Title.setFont(font);
+		Choice2_Title.setFont(font_neon);
 		Choice2_Title.setString(root[song_choice[2]]["Song Name"].asString());
 		Choice2_Title.setColor(sf::Color::Blue);
-		Choice2_Title.setPosition(200.0f, 390.0f);
+		Choice2_Title.setPosition(300.0f, 390.0f);
 		Choice2_Title.setCharacterSize(24);
 		Choice2_Title.setStyle(sf::Text::Bold);
 
+		Choice2_Vote.setFont(font_neon);
+		Choice2_Vote.setString(std::to_string(vote[2]));
+		Choice2_Vote.setColor(sf::Color::Blue);
+		Choice2_Vote.setPosition(300.0f, 410.0f);
+		Choice2_Vote.setCharacterSize(24);
+		Choice2_Vote.setStyle(sf::Text::Bold);
 
 		Choice3_CurrentText.setFont(font);
 		Choice3_CurrentText.setString("Next song 3");
 		Choice3_CurrentText.setColor(sf::Color::Green);
-		Choice3_CurrentText.setPosition(350.0f, 345.0f);
+		Choice3_CurrentText.setPosition(550.0f, 345.0f);
 		Choice3_CurrentText.setCharacterSize(26);
 		Choice3_CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
-		Choice3_Artist.setFont(font);
+		Choice3_Artist.setFont(font_neon);
 		Choice3_Artist.setString(root[song_choice[3]]["artist"].asString());
 		Choice3_Artist.setColor(sf::Color::Blue);
-		Choice3_Artist.setPosition(350.0f, 370.0f);
+		Choice3_Artist.setPosition(550.0f, 370.0f);
 		Choice3_Artist.setCharacterSize(24);
 		Choice3_Artist.setStyle(sf::Text::Bold);
 
-		Choice3_Title.setFont(font);
+		Choice3_Title.setFont(font_neon);
 		Choice3_Title.setString(root[song_choice[3]]["Song Name"].asString());
 		Choice3_Title.setColor(sf::Color::Blue);
-		Choice3_Title.setPosition(350.0f, 390.0f);
+		Choice3_Title.setPosition(550.0f, 390.0f);
 		Choice3_Title.setCharacterSize(24);
 		Choice3_Title.setStyle(sf::Text::Bold);
+
+		Choice3_Vote.setFont(font_neon);
+		Choice3_Vote.setString(std::to_string(vote[3]));
+		Choice3_Vote.setColor(sf::Color::Blue);
+		Choice3_Vote.setPosition(550.0f, 410.0f);
+		Choice3_Vote.setCharacterSize(24);
+		Choice3_Vote.setStyle(sf::Text::Bold);
 
 		Choice4_CurrentText.setFont(font);
 		Choice4_CurrentText.setString("Next song 4");
 		Choice4_CurrentText.setColor(sf::Color::Green);
-		Choice4_CurrentText.setPosition(500.0f, 345.0f);
+		Choice4_CurrentText.setPosition(800.0f, 345.0f);
 		Choice4_CurrentText.setCharacterSize(26);
 		Choice4_CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
-		Choice4_Artist.setFont(font);
+		Choice4_Artist.setFont(font_neon);
 		Choice4_Artist.setString(root[song_choice[4]]["artist"].asString());
 		Choice4_Artist.setColor(sf::Color::Blue);
-		Choice4_Artist.setPosition(500.0f, 370.0f);
+		Choice4_Artist.setPosition(800.0f, 370.0f);
 		Choice4_Artist.setCharacterSize(24);
 		Choice4_Artist.setStyle(sf::Text::Bold);
 
-		Choice4_Title.setFont(font);
+		Choice4_Title.setFont(font_neon);
 		Choice4_Title.setString(root[song_choice[4]]["Song Name"].asString());
 		Choice4_Title.setColor(sf::Color::Blue);
-		Choice4_Title.setPosition(500.0f, 390.0f);
+		Choice4_Title.setPosition(800.0f, 390.0f);
 		Choice4_Title.setCharacterSize(24);
 		Choice4_Title.setStyle(sf::Text::Bold);
+
+		Choice4_Vote.setFont(font_neon);
+		Choice4_Vote.setString(std::to_string(vote[4]));
+		Choice4_Vote.setColor(sf::Color::Blue);
+		Choice4_Vote.setPosition(800.0f, 410.0f);
+		Choice4_Vote.setCharacterSize(24);
+		Choice4_Vote.setStyle(sf::Text::Bold);
+
+
+		// next song :
+	
+		Next_CurrentText.setFont(font);
+		Next_CurrentText.setString("Next song");
+		Next_CurrentText.setColor(sf::Color::Green);
+		Next_CurrentText.setPosition(600.0f, 650.0f);
+		Next_CurrentText.setCharacterSize(26);
+		Next_CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
+
+		Next_Artist.setFont(font_neon);
+		Next_Artist.setString(root[song_choice[next_chosen_song]]["artist"].asString());
+		Next_Artist.setColor(sf::Color::White);
+		Next_Artist.setPosition(600.0f, 670.0f);
+		Next_Artist.setCharacterSize(24);
+		Next_Artist.setStyle(sf::Text::Bold);
+
+		Next_Title.setFont(font_neon);
+		Next_Title.setString(root[song_choice[next_chosen_song]]["Song Name"].asString());
+		Next_Title.setColor(sf::Color::White);
+		Next_Title.setPosition(600.0f, 690.0f);
+		Next_Title.setCharacterSize(24);
+		Next_Title.setStyle(sf::Text::Bold);
+	
 
 		// print option text
 	if(choice==true){
 		window.draw(Choice1_Artist);
 		window.draw(Choice1_Title);
 		window.draw(Choice1_CurrentText);
+		window.draw(Choice1_Vote);
 		window.draw(Choice2_Artist);
 		window.draw(Choice2_Title);
 		window.draw(Choice2_CurrentText);
+		window.draw(Choice2_Vote);
 		window.draw(Choice3_Artist);
 		window.draw(Choice3_Title);
 		window.draw(Choice3_CurrentText);
+		window.draw(Choice3_Vote);
 		window.draw(Choice4_Artist);
 		window.draw(Choice4_Title);
 		window.draw(Choice4_CurrentText);
+		window.draw(Choice4_Vote);
 	}
+	// print next song
+	if(next_bool==true){
+
+		window.draw(Next_Artist);
+		window.draw(Next_Title);
+		window.draw(Next_CurrentText);
+		}
 		
 		// Update the window
 		window.display();

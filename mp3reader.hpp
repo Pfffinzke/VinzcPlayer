@@ -24,8 +24,10 @@ using namespace std;
     std::string getResourcePath(const std::string& executableDir, const std::string& resourceRelativeName);
     void togglePlayPause(sf::Music& music);
     int NextSong(sf::Music& music);
+    int FirstSong(sf::Music& music);
     void NextSongPool(sf::Music& music);
     void Autoplay(sf::Music& music);
+    int ChosenSong(int vote[]);
 
 
 
