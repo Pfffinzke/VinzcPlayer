@@ -1,11 +1,11 @@
 
 CC=g++
-CFLAGS=-std=c++11 -g -O0
+CFLAGS=-std=c++11 -g -Wl,--no-undefined
 
 # IMPORTANT
 # replace <TODO> with your installation directories
 #
-SFML=~/00_perso/dev/SFML
+SFML=~/00_perso/dev/SFML-2.5.1
 MPG123=/usr/local
 
 INCLUDESFML=$(SFML)/include
@@ -14,11 +14,11 @@ INCLUDEMPG123=$(MPG123)/include
 LIBSFML=$(SFML)/lib
 LIBMPG123=$(MPG123)/lib
 
-INCLUDES := -I$(INCLUDEMPG123) -I$(INCLUDESFML)
+INCLUDES := -I $(INCLUDEMPG123) -I $(INCLUDESFML)
 # for non-debug builds
-LIBS     := -L$(LIBMPG123) -lmpg123 -L$(LIBSFML) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lid3 -ljsoncpp
+LIBS     := -L $(LIBMPG123) -lmpg123 -L $(LIBSFML) -l sfml-graphics -l sfml-window -l sfml-system -l sfml-audio -lid3 -ljsoncpp
 # for debug builds
-#LIBS     := -L$(LIBMPG123) -lmpg123 -L$(LIBSFML) -lsfml-graphics-d -lsfml-window-d -lsfml-system-d -lsfml-audio-d
+#LIBS     := -L $(LIBMPG123) -lmpg123 -L $(LIBSFML) -lsfml-graphics-d -lsfml-window-d -lsfml-system-d -lsfml-audio-d -lid3 -ljsoncpp
 
 AUDIOEXE := VinzcPlayer
 
