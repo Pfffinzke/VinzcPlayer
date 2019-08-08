@@ -18,7 +18,7 @@
 #include "id3.h"
 #include "tagHelper.h" 
 
-#include "SoundFileReaderMp3.hpp"
+#include "multimedia.hpp"
 #include "mp3reader.hpp"
 
 #include <SFML/Graphics.hpp>
@@ -31,7 +31,7 @@
 
 using namespace std;
 
-
+static Multimedia *multimedia = nullptr;
 Json::Reader reader;
 Json::Value root;
 Json::StyledStreamWriter writer;
@@ -48,6 +48,7 @@ int next_chosen_song;
 
 bool choice;
 bool next_bool;
+
 /*function... might want it in some class?*/
 
 
@@ -76,12 +77,10 @@ int getdir (string dir, vector<string> &files)
 
 int read_json(string input_dir)
 {
-	int fileNameLength = 1024;
-	int mp3TagSize = 128;
-	TAGdata tagStruct;
-	char  fileName[fileNameLength+1];
-	ifstream mp3File;
-	char buffer[mp3TagSize+1];
+	//TAGdata tagStruct;
+	//char  fileName[fileNameLength+1];
+	//ifstream mp3File;
+
 	//first step : list all mp3 files in given directory
  	string dir = string("./"+input_dir+"/");
     vector<string> files = vector<string>();
@@ -112,9 +111,6 @@ int read_json(string input_dir)
 				//Third step parse ID3 tags to fill JSON	
 
 				cout << root[i]["path"] << endl;
-				//mp3File.open(files[i].c_str());
-				//buffer[mp3TagSize] = '\0';  //just a precaution
-
 
 				tagHelper th(const_cast<char*>(files[i].c_str()));
 
@@ -135,13 +131,6 @@ int read_json(string input_dir)
 				root[i]["artist"] = artist;
     			delete artist; //always remember to delete this
 
-
-
-				
-				
-
-				//root[i]["Song Name"] = tagStruct.title ;
-    			//root[i]["artist"] = tagStruct.artist;
 				root[i]["play"] = 0;
 				root[i]["choice"] = 0;
 
@@ -166,70 +155,54 @@ std::string getResourcePath(const std::string& executableDir, const std::string&
 	return prefix + resourceRelativeName;
 }
 
-void togglePlayPause(sf::Music& music) {
-	sf::SoundSource::Status musicStatus = music.getStatus();
-	if(musicStatus == sf::SoundSource::Status::Paused) {
-		music.play();
-		std::cout << "music play" << std::endl;
-	} else if(musicStatus == sf::SoundSource::Status::Playing) {
-		music.pause();
-		std::cout << "music pause" << std::endl;
-	}
-}
 
-int FirstSong(sf::Music& music) {
-	music.pause();
+int FirstSong() {
+	//music.pause();
 	std::random_device rd; // obtain a random number from hardware
     std::mt19937 eng(rd()); // seed the generator
     std::uniform_int_distribution<> distr(0, number_song);
 	int first_random_song = distr(eng);
-
 	while ((root[first_random_song]["play"]==1)&&(played_song<=number_song)){
 	first_random_song = distr(eng);
 	}
 	current_song = first_random_song;
 	filename = root[current_song]["path"].asString();
+	if (!multimedia->initialize())
+		return -1;
 
-	if (!music.openFromFile(filename)) {
-		std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
-		return EXIT_FAILURE;
-	}
 	root[current_song]["play"] = 1;
-	music.play();
+	multimedia->play(filename);
 	
 	played_song++;
-	NextSongPool(music);
+	NextSongPool();
 
 	return 1;
 
 }
 
-int NextSong(sf::Music& music) {
-	music.pause();
+int NextSong() {
+	multimedia->stop();
 	next_bool=false;
 	current_song = song_choice[next_chosen_song];
 	filename = root[current_song]["path"].asString();
-	if (!music.openFromFile(filename)) {
-		std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
-		return EXIT_FAILURE;
-	}
+	
 	
 	root[current_song]["play"] = 1;
-	music.play();
+	multimedia->play(filename);
 	// chosen song is played reset vote
 			vote[1]=0;
 			vote[2]=0;
 			vote[3]=0;
 			vote[4]=0;
 	played_song++;
-	NextSongPool(music);
+	NextSongPool();
 
 return 1;
 
 }
 
 
-void NextSongPool(sf::Music& music) {
+void NextSongPool() {
 	std::random_device rd; // obtain a random number from hardware
     std::mt19937 eng(rd()); // seed the generator
     std::uniform_int_distribution<> distr(0, number_song-1);
@@ -258,10 +231,14 @@ void NextSongPool(sf::Music& music) {
 	
 }
 
-void Autoplay(sf::Music& music) {
+void Autoplay() {
 
-	if (music.getStatus()!=sf::Music::Status::Playing)
-	NextSong(music);
+	if ((!multimedia->is_playing())&&!multimedia->is_paused()){
+		std::cout << "START: AUTOPLAY "  << std::endl;
+		NextSong();
+	}
+	
+	
 	
 }
 
@@ -273,7 +250,6 @@ int ChosenSong(int vote[]){
 
     while (counter <= 4)
     {
-
 
         if (largest < vote[counter])
         {
@@ -308,20 +284,13 @@ int main(int argc, char* argv[]) {
 	// Register our custom sf::SoundFileReader for mp3 files.
 	// This is the preferred way of adding support for a new audio format.
 	// Other formats will be handled by their respective readers.
-	sf::SoundFileFactory::registerReader<audio::SoundFileReaderMp3>();
+	
 
 	// Load a music to play
-	sf::Music music;
+	//sf::Music music;
 
 
 
-	if (!FirstSong(music)) {
-		std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
-		return EXIT_FAILURE;
-	}
-
-	
-	sf::Time song_lenght = music.getDuration();
 
 
 	
@@ -358,20 +327,31 @@ int main(int argc, char* argv[]) {
 	// Start the music
 	bool choice;
 
+	if (!FirstSong()) {
+		std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
+		return EXIT_FAILURE;
+	}
+
+
 	// Start the game loop
 	while (window.isOpen())
 	{
 		// Process events
 		sf::Event event;
-		Autoplay(music);
-		sf::Time elapsed = music.getPlayingOffset();
-		sf::Time start_voting_time = sf::seconds(10.0f);
-		sf::Time end_voting_time = sf::seconds(30.0f);
+		
+
+		Autoplay();
+
+		//elapsed time is a % from 0.0 to 1.0
+		float elapsed  = multimedia->get_position()/1000;
+
+		float start_voting_time = 10;
+		float end_voting_time = 30;
 		//std::cout << "song time. " << song_lenght.asSeconds() << "remaining time :  " << elapsed.asSeconds() << std::endl;
 
 
 		// propose 4 choices
-		if((elapsed.asSeconds()>=start_voting_time.asSeconds())&&(elapsed.asSeconds()<=end_voting_time.asSeconds())) {
+		if((elapsed >= start_voting_time)&&(elapsed <= end_voting_time)) {
 			choice = true;
 			}
 			else 
@@ -379,7 +359,7 @@ int main(int argc, char* argv[]) {
 			choice = false;
 
 			}
-		if((elapsed.asSeconds()>=30)&&(elapsed.asSeconds()<=40)) {
+		if((elapsed >= end_voting_time)&&(elapsed<=end_voting_time+1)) {
 
 			next_chosen_song = ChosenSong(vote);
 			next_bool=true;
@@ -394,13 +374,16 @@ int main(int argc, char* argv[]) {
 				// the user interface: SPACE pauses and plays, ESC quits
 				switch (event.key.code) {
 					case sf::Keyboard::Space:
-						togglePlayPause(music);
+					std::cout << "pressspace" << std::endl;
+						multimedia->pause();
 						break;
 					case sf::Keyboard::Escape:
+					std::cout << "pressspace - escape" << std::endl;
 						window.close();
 						break;
 					case sf::Keyboard::N:
-						if (!NextSong(music)) {
+						std::cout << "pressspace - nextsong" << std::endl;
+						if (!NextSong()) {
 		std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
 		return EXIT_FAILURE;
 					}
@@ -461,7 +444,7 @@ int main(int argc, char* argv[]) {
 						break;
 
 					case 4:
-						if (!NextSong(music)) {
+						if (!NextSong()) {
 							std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
 							return EXIT_FAILURE;
 						}
@@ -493,13 +476,6 @@ int main(int argc, char* argv[]) {
 		sf::Text CurrentText;
 		sf::String CurrentSongText = root[current_song]["Song Name"].asString();
 		sf::String CurrentArtistText = root[current_song]["artist"].asString();
-		//Title.setOutlineColor(sf::Color::White);
-    	//Title.setOutlineThickness(thickness);
-		//Artist.setOutlineColor(sf::Color::White);
-    	//Artist.setOutlineThickness(thickness);
-		//CurrentText.setOutlineColor(sf::Color::White);
-    	//CurrentText.setOutlineThickness(thickness);
-
 
 		Artist.setFont(font_neon);
 		Artist.setString(CurrentArtistText);
@@ -507,6 +483,8 @@ int main(int argc, char* argv[]) {
 		Artist.setPosition(400.0f, 70.0f);
 		Artist.setCharacterSize(24);
 		Artist.setStyle(sf::Text::Bold);
+		Artist.setOutlineColor(sf::Color::Red);
+		Artist.setOutlineThickness(5.0f);
 
 		Title.setFont(font_neon);
 		Title.setString(CurrentSongText);
@@ -705,7 +683,7 @@ int main(int argc, char* argv[]) {
 		Vote_CurrentText.setStyle(sf::Text::Bold);
 
 		Vote_Time.setFont(font_neon);
-		Vote_Time.setString(std::to_string((int)(end_voting_time.asSeconds()-elapsed.asSeconds())));
+		Vote_Time.setString(std::to_string((int)((end_voting_time-elapsed))));
 		Vote_Time.setColor(sf::Color::Red);
 		Vote_Time.setPosition(350.0f, 450.0f);
 		Vote_Time.setCharacterSize(44);
@@ -745,4 +723,3 @@ int main(int argc, char* argv[]) {
 
 	return EXIT_SUCCESS;
 }
-
