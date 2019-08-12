@@ -123,7 +123,7 @@ bool Multimedia::initialize()
 
 int Multimedia::play(const std::string &media_file)
 {
-	error = -1;
+	//error = -1;
    
 	if (vlc_instance == nullptr) {
 		std::cout << "vlc_instance == nullptr, media file : " << media_file << std::endl;
@@ -154,7 +154,7 @@ int Multimedia::play(const std::string &media_file)
 	libvlc_media_player_play(media_player);
 
 	libvlc_media_release(media);
-	return error;
+	//return 1;
 }
 
 void Multimedia::release()
