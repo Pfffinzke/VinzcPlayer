@@ -18,7 +18,7 @@
 #include "id3.h"
 #include "tagHelper.h" 
 
-#include "multimedia.hpp"
+#include "vlc.hpp"
 #include "mp3reader.hpp"
 
 #include <SFML/Graphics.hpp>
@@ -31,7 +31,7 @@
 
 using namespace std;
 
-static Multimedia *multimedia = nullptr;
+static vlc *multimedia = nullptr;
 Json::Reader reader;
 Json::Value root;
 Json::StyledStreamWriter writer;
@@ -39,6 +39,7 @@ Json::StyledStreamWriter writer;
 int number_song;
 int played_song;
 std::string filename;
+std::string menu_path;
 int current_song;
 
 int song_choice[4];
@@ -47,6 +48,7 @@ int vote[5]={0,0,0,0,0};
 int next_chosen_song;
 
 bool choice;
+bool menu;
 bool next_bool;
 
 /*function... might want it in some class?*/
@@ -140,6 +142,7 @@ int read_json(string input_dir)
   			
   				}
 	}
+	number_song = root.size();
 	 outFile.close();
 
 // fourth step chose a random song to play
@@ -167,12 +170,15 @@ int FirstSong() {
 	}
 	current_song = first_random_song;
 	filename = root[current_song]["path"].asString();
+	std::cout << "first song filename" << filename << std::endl;
 	if (!multimedia->initialize())
 		return -1;
-
+std::cout << "first song init ok" << std::endl;
 	root[current_song]["play"] = 1;
+	std::cout << "first song call vlc play" << std::endl;
 	multimedia->play(filename);
 	
+	std::cout << "first song is vlc playing" << std::endl;
 	played_song++;
 	NextSongPool();
 
@@ -185,10 +191,13 @@ int NextSong() {
 	next_bool=false;
 	current_song = song_choice[next_chosen_song];
 	filename = root[current_song]["path"].asString();
+
+	std::cout << "START: " << filename << std::endl;
 	
 	
 	root[current_song]["play"] = 1;
 	multimedia->play(filename);
+	
 	// chosen song is played reset vote
 			vote[1]=0;
 			vote[2]=0;
@@ -270,10 +279,12 @@ int ChosenSong(int vote[]){
 	return next_song;
 }
 
-int main(int argc, char* argv[]) {
-
-	read_json(argv[1]);
-	number_song = root.size();
+int main() {
+	menu=false;
+	menu_path = "intro";
+	//read_json(argv[1]);
+	read_json(menu_path);
+	
 	std::cout << "number of songs: " << number_song << std::endl;
 
 
@@ -332,15 +343,121 @@ int main(int argc, char* argv[]) {
 		return EXIT_FAILURE;
 	}
 
+	
 
-	// Start the game loop
+
+// Start the Menu loop
 	while (window.isOpen())
 	{
+		if (menu){
 		// Process events
 		sf::Event event;
 		
 
-		Autoplay();
+		
+		//path choice(music);	
+		while (window.pollEvent(event)) {
+
+			if (event.type == sf::Event::Closed) {
+				window.close();
+			} else if(event.type == sf::Event::KeyPressed) {
+				// the user interface: SPACE pauses and plays, ESC quits
+				switch (event.key.code) {
+					case sf::Keyboard::F1:
+					menu_path = "hiphop";
+					read_json(menu_path);
+					
+						break;
+					case sf::Keyboard::F2:
+					menu_path = "disco";
+					read_json(menu_path);
+					
+						break;
+					case sf::Keyboard::Escape:
+					std::cout << "pressspace - escape" << std::endl;
+						window.close();
+						break;
+					case sf::Keyboard::Enter:
+					NextSong();
+					menu = false;
+						break;
+					default:
+						break;
+				}
+			}
+
+		}
+
+
+		// Clear screen
+		window.clear();
+		// Draw the sprite
+		window.draw(sprite);
+		sf::Font font;
+		font.loadFromFile("ALBA.ttf");
+		sf::Font font_neon;
+		font_neon.loadFromFile("Neon.ttf");
+		float thickness = 4.f;
+		
+
+	
+
+		sf::Text Path_Choice1;
+		sf::Text Path_Choice2;
+		sf::Text Path_Selected;
+		sf::Text Confirm;
+
+
+
+		// update Choices info
+
+
+		Path_Choice1.setFont(font);
+		Path_Choice1.setString("F1 : Hip-Hop");
+		Path_Choice1.setColor(sf::Color::Green);
+		Path_Choice1.setPosition(50.0f, 50.0f);
+		Path_Choice1.setCharacterSize(30);
+		Path_Choice1.setStyle(sf::Text::Bold | sf::Text::Underlined);
+
+		Path_Choice2.setFont(font);
+		Path_Choice2.setString("F2 : Disco-Funk");
+		Path_Choice2.setColor(sf::Color::Green);
+		Path_Choice2.setPosition(250.0f, 50.0f);
+		Path_Choice2.setCharacterSize(30);
+		Path_Choice2.setStyle(sf::Text::Bold | sf::Text::Underlined);
+
+		Path_Selected.setFont(font_neon);
+		Path_Selected.setString(menu_path);
+		Path_Selected.setColor(sf::Color::White);
+		Path_Selected.setPosition(100.0f, 100.0f);
+		Path_Selected.setCharacterSize(24);
+		Path_Selected.setStyle(sf::Text::Bold);
+
+		Confirm.setFont(font_neon);
+		Confirm.setString("Press Enter to confirm");
+		Confirm.setColor(sf::Color::Green);
+		Confirm.setPosition(120.0f, 120.0f);
+		Confirm.setCharacterSize(24);
+		Confirm.setStyle(sf::Text::Bold);
+
+		//draw text
+
+		window.draw(Path_Choice1);
+		window.draw(Path_Choice2);
+		window.draw(Path_Selected);
+		window.draw(Confirm);
+		
+		// Update the window
+		window.display();
+	}
+
+	// Start the game loop
+	else
+	{
+		// Process events
+		sf::Event event;
+		
+		//Autoplay();
 
 		//elapsed time is a % from 0.0 to 1.0
 		float elapsed  = multimedia->get_position()/1000;
@@ -411,6 +528,10 @@ int main(int argc, char* argv[]) {
 						if (choice) {
 							vote[4]++;
 					}
+						break;
+
+					case sf::Keyboard::M:
+						menu = true;
 						break;
 
 					default:
@@ -720,6 +841,8 @@ int main(int argc, char* argv[]) {
 		// Update the window
 		window.display();
 	}
+	}
 
 	return EXIT_SUCCESS;
+
 }
