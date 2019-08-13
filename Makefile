@@ -26,7 +26,7 @@ AUDIOEXE := VinzcPlayer
 $(AUDIOEXE): Main.o
 	$(CC) $(CFLAGS) $< -o $@ vlc.o tagHelper.o $(LIBS)
 
-Main.o: mp3reader.cpp mp3reader.hpp vlc.o tagHelper.o
+Main.o: vinzcplayer.cpp vinzcplayer.hpp vlc.o tagHelper.o
 	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@ -l/id3lib/bin/Release/id3lib
 
 tagHelper.o: tagHelper.cpp tagHelper.h
