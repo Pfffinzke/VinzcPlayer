@@ -50,7 +50,7 @@ int next_chosen_song;
 bool choice;
 bool menu;
 bool next_bool;
-bool parsing;
+bool b_parsing;
 
 /*function... might want it in some class?*/
 
@@ -83,7 +83,7 @@ int read_json(string input_dir)
 	//TAGdata tagStruct;
 	//char  fileName[fileNameLength+1];
 	//ifstream mp3File;
-	parsing = true;
+	b_parsing = true;
 	//first step : list all mp3 files in given directory
  	string dir = string("./"+input_dir+"/");
     vector<string> files = vector<string>();
@@ -144,7 +144,7 @@ int read_json(string input_dir)
   				}
 	}
 	number_song = root.size();
-	parsing = false;
+	b_parsing = false;
 	 outFile.close();
 
 // fourth step chose a random song to play
@@ -282,13 +282,13 @@ int ChosenSong(int vote[]){
 }
 
 int main() {
-	menu=false;
+	menu=true;
 	menu_path = "intro";
 	//read_json(argv[1]);
 	read_json(menu_path);
 	
 	std::cout << "number of songs: " << number_song << std::endl;
-
+	b_parsing=true;
 
 
 	//filename = root[distr(eng)]["path"].asString();
@@ -339,13 +339,19 @@ int main() {
 	
 	// Start the music
 	bool choice;
-
+	float first_line = 100.0;
 	if (!FirstSong()) {
 		std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
 		return EXIT_FAILURE;
 	}
 
-	
+	sf::Texture texLogo;
+	texLogo.loadFromFile("vinzcplayer-2.png");
+	// Create a sprite
+	sf::Sprite spriteLogo;
+	spriteLogo.setTexture(texLogo);
+	spriteLogo.setPosition(200, 20);
+
 
 
 // Start the Menu loop
@@ -399,11 +405,28 @@ int main() {
 		font.loadFromFile("ALBA.ttf");
 		sf::Font font_neon;
 		font_neon.loadFromFile("Neon.ttf");
-		float thickness = 4.f;
+		float thickness = 3.f;
 		
+	sf::Texture texButton;
+	texButton.loadFromFile("boutton.png");
+	// Create a sprite
+	
+	float end_line = 400.0;
+	sf::Sprite spriteButton1;
+	spriteButton1.setTexture(texButton);
+	spriteButton1.setPosition(100, first_line);
+	spriteButton1.scale(0.8,0.8);
 
+	sf::Sprite spriteButton2;
+	spriteButton2.setTexture(texButton);
+	spriteButton2.setPosition(400, first_line);
+	spriteButton2.scale(0.8,0.8);
 	
 
+	window.draw(spriteButton1);
+	window.draw(spriteButton2);
+
+		sf::Text Welcome;
 		sf::Text Path_Choice1;
 		sf::Text Path_Choice2;
 		sf::Text Path_Selected;
@@ -412,32 +435,45 @@ int main() {
 
 
 		// update Choices info
-
+		Welcome.setFont(font);
+		Welcome.setString("Welcome");
+		Welcome.setColor(sf::Color::Blue);
+		Welcome.setOutlineColor(sf::Color::Black);
+		Welcome.setOutlineThickness(thickness);
+		Welcome.setPosition(300.0f, 50.0f);
+		Welcome.setCharacterSize(45);
+		Welcome.setStyle(sf::Text::Bold);
 
 		Path_Choice1.setFont(font);
 		Path_Choice1.setString("F1 : Hip-Hop");
 		Path_Choice1.setColor(sf::Color::Green);
-		Path_Choice1.setPosition(50.0f, 50.0f);
+		Path_Choice1.setOutlineColor(sf::Color::Black);
+		Path_Choice1.setOutlineThickness(thickness);
+		Path_Choice1.setPosition(135.0f, first_line+10);
 		Path_Choice1.setCharacterSize(30);
-		Path_Choice1.setStyle(sf::Text::Bold | sf::Text::Underlined);
+		Path_Choice1.setStyle(sf::Text::Bold );
 
 		Path_Choice2.setFont(font);
 		Path_Choice2.setString("F2 : Disco-Funk");
 		Path_Choice2.setColor(sf::Color::Green);
-		Path_Choice2.setPosition(250.0f, 50.0f);
+		Path_Choice2.setOutlineColor(sf::Color::Black);
+		Path_Choice2.setOutlineThickness(thickness);
+		Path_Choice2.setPosition(410.0f, first_line+10);
 		Path_Choice2.setCharacterSize(30);
-		Path_Choice2.setStyle(sf::Text::Bold | sf::Text::Underlined);
+		Path_Choice2.setStyle(sf::Text::Bold);
 
 		Path_Selected.setFont(font_neon);
 		Path_Selected.setString(menu_path);
 		Path_Selected.setColor(sf::Color::White);
-		Path_Selected.setPosition(100.0f, 100.0f);
+		Path_Selected.setOutlineColor(sf::Color::Black);
+		Path_Selected.setOutlineThickness(thickness);
+		Path_Selected.setPosition(120.0f, end_line);
 		Path_Selected.setCharacterSize(24);
 		Path_Selected.setStyle(sf::Text::Bold);
 
 		Parsing.setFont(font_neon);
 
-		if (parsing)
+		if (b_parsing)
 		{
 			Parsing.setString("Wait...");
 			Parsing.setColor(sf::Color::Red);
@@ -448,25 +484,29 @@ int main() {
 			Parsing.setColor(sf::Color::Green);
 		}
 		
-		
-		Parsing.setPosition(120.0f, 150.0f);
+		Parsing.setOutlineColor(sf::Color::Black);
+		Parsing.setOutlineThickness(thickness);
+		Parsing.setPosition(200.0f, end_line);
 		Parsing.setCharacterSize(24);
 		Parsing.setStyle(sf::Text::Bold);
 
 		Confirm.setFont(font_neon);
 		Confirm.setString("Press Enter to confirm");
 		Confirm.setColor(sf::Color::Green);
-		Confirm.setPosition(120.0f, 120.0f);
+		Confirm.setOutlineColor(sf::Color::Black);
+		Confirm.setOutlineThickness(thickness);
+		Confirm.setPosition(120.0f, end_line+25);
 		Confirm.setCharacterSize(24);
 		Confirm.setStyle(sf::Text::Bold);
 
 		//draw text
-
+		window.draw(Welcome);
 		window.draw(Path_Choice1);
 		window.draw(Path_Choice2);
 		window.draw(Path_Selected);
 		window.draw(Parsing);
 		window.draw(Confirm);
+		window.draw(spriteLogo);
 		
 		// Update the window0
 		window.display();
@@ -622,29 +662,30 @@ int main() {
 		Artist.setFont(font_neon);
 		Artist.setString(CurrentArtistText);
 		Artist.setColor(sf::Color::White);
-		Artist.setPosition(400.0f, 70.0f);
+		Artist.setPosition(400.0f, first_line-15);
 		Artist.setCharacterSize(24);
 		Artist.setStyle(sf::Text::Bold);
-		Artist.setOutlineColor(sf::Color::Red);
-		Artist.setOutlineThickness(5.0f);
+		//Artist.setOutlineColor(sf::Color::Black);
+		//Artist.setOutlineThickness(3.0f);
 
 		Title.setFont(font_neon);
 		Title.setString(CurrentSongText);
 		Title.setColor(sf::Color::White);
-		Title.setPosition(400.0f, 90.0f);
+		Title.setPosition(400.0f, first_line+10);
 		Title.setCharacterSize(24);
 		Title.setStyle(sf::Text::Bold);
 		
 		CurrentText.setFont(font);
 		CurrentText.setString("Current playing song");
 		CurrentText.setColor(sf::Color::Cyan);
-		CurrentText.setPosition(400.0f, 45.0f);
+		CurrentText.setPosition(400.0f, first_line-40);
 		CurrentText.setCharacterSize(26);
 		CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
 		window.draw(Artist);
 		window.draw(Title);
 		window.draw(CurrentText);
+		window.draw(spriteLogo);
 		
 
 		sf::Text Choice1_Title;
@@ -704,6 +745,18 @@ int main() {
 		Choice1_Vote.setPosition(700.0f, 150.0f);
 		Choice1_Vote.setCharacterSize(20+(vote[1]/2));
 		Choice1_Vote.setStyle(sf::Text::Bold);
+
+		sf::Sprite spriteChoice1_Vote;
+		spriteChoice1_Vote.setTextureRect(sf::IntRect(10, 10, 50, 30));
+		spriteChoice1_Vote.setColor(sf::Color(255, 0, 255, 200));
+		spriteChoice1_Vote.setPosition(100, 25);
+
+		sf::RectangleShape rectanglevote1(sf::Vector2f(120, -(5+vote[1])));
+		rectanglevote1.setFillColor(sf::Color(50, 50, 250));
+
+		rectanglevote1.setPosition(100, 525);
+
+		
 
 		Choice2_CurrentText.setFont(font);
 		Choice2_CurrentText.setString("Next song 2");
@@ -820,15 +873,19 @@ int main() {
 		Vote_CurrentText.setFont(font_neon);
 		Vote_CurrentText.setString("TIME TO VOTE");
 		Vote_CurrentText.setColor(sf::Color::Red);
-		Vote_CurrentText.setPosition(300.0f, 400.0f);
-		Vote_CurrentText.setCharacterSize(28);
+		Vote_CurrentText.setOutlineColor(sf::Color::Black);
+		Vote_CurrentText.setOutlineThickness(3.0f);
+		Vote_CurrentText.setPosition(100.0f, 400.0f);
+		Vote_CurrentText.setCharacterSize(35);
 		Vote_CurrentText.setStyle(sf::Text::Bold);
 
 		Vote_Time.setFont(font_neon);
 		Vote_Time.setString(std::to_string((int)((end_voting_time-elapsed))));
 		Vote_Time.setColor(sf::Color::Red);
-		Vote_Time.setPosition(350.0f, 450.0f);
-		Vote_Time.setCharacterSize(44);
+		Vote_Time.setOutlineColor(sf::Color::Black);
+		Vote_Time.setOutlineThickness(4.0f);
+		Vote_Time.setPosition(150.0f, 420.0f);
+		Vote_Time.setCharacterSize(50);
 		Vote_Time.setStyle(sf::Text::Bold);
 
 		//display text
@@ -850,6 +907,7 @@ int main() {
 		window.draw(Choice4_Vote);
 		window.draw(Vote_CurrentText);
 		window.draw(Vote_Time);
+		window.draw(rectanglevote1);
 	}
 	// print next song
 	if(next_bool==true){
