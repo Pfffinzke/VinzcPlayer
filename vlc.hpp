@@ -31,10 +31,14 @@ class vlc {
 	/* Actions */
 	
 	bool initialize();
+	float get_lenght();
+	float get_current_time();
 	int play(const std::string &media_file);
+	int get_volume();
+	void set_volume(int volume);
 	bool is_playing() const;
 	bool is_paused();
-
+  bool is_finished();
 	void stop();
 	void pause() const;
 

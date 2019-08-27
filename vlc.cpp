@@ -55,6 +55,51 @@ bool vlc::is_playing() const
 	return is_valid_media() && libvlc_media_player_is_playing(media_player);
 }
 
+bool vlc::is_finished()
+{
+  libvlc_time_t total;
+  libvlc_time_t current;
+  
+  total = libvlc_media_player_get_length (media_player);
+  current = libvlc_media_player_get_time (media_player);
+  if ( current == total)
+    return true;
+  else
+    return false;
+    
+}
+
+int vlc::get_volume()
+{
+
+  return libvlc_audio_get_volume(media_player);
+}
+
+void vlc::set_volume(int volume)
+{
+  libvlc_audio_set_volume(media_player, volume);
+	}
+
+float vlc::get_lenght()
+{
+  libvlc_time_t total;
+  total = libvlc_media_player_get_length (media_player);
+  
+  total = total/1000;
+  
+  return float(total);
+}
+	
+float vlc::get_current_time()
+{
+  libvlc_time_t current;
+  
+  current = libvlc_media_player_get_time (media_player);
+  current = current / 1000;
+ 
+ return float(current);
+}
+
 
 bool vlc::is_paused()
 {
@@ -129,7 +174,7 @@ int vlc::play(const std::string &media_file)
 		std::cout << "media_player  == nullptr, media file : " << media_file << std::endl;
 		return false;
 	}
-
+ libvlc_audio_set_volume(media_player, 100);
 	libvlc_media_player_play(media_player);
 
 	libvlc_media_release(media);

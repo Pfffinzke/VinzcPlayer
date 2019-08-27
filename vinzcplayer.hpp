@@ -22,14 +22,12 @@ using namespace std;
 	int getdir (string dir, vector<string> &files);
     int read_json(string input_dir);
     std::string getResourcePath(const std::string& executableDir, const std::string& resourceRelativeName);
-    int NextSong();
+    void NextSong();
     int FirstSong();
     void NextSongPool();
     void Autoplay();
     int ChosenSong(int vote[]);
-
-
-
+void New_folder_First_song();
 
 
 

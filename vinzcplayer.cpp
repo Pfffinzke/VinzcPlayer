@@ -1,6 +1,3 @@
-//mp3reader.cpp
-//snags the tag off the last 128 bytes of an MP3 file.
-
 #include "MP3tag.h"
 #include <iostream>
 #include <fstream>
@@ -35,7 +32,7 @@ static vlc *multimedia = nullptr;
 Json::Reader reader;
 Json::Value root;
 Json::StyledStreamWriter writer;
-
+ vector<string> files = vector<string>();
 int number_song;
 int played_song;
 std::string filename;
@@ -48,6 +45,7 @@ int vote[5]={0,0,0,0,0};
 int next_chosen_song;
 
 bool choice;
+bool next_button = true;
 bool menu;
 bool next_bool;
 bool b_parsing;
@@ -59,7 +57,7 @@ bool b_parsing;
 
 int getdir (string dir, vector<string> &files)
 {
-    
+    files.clear();
 	DIR *dp;
     struct dirent *dirp;
     if((dp  = opendir(dir.c_str())) == NULL) {
@@ -82,12 +80,13 @@ int read_json(string input_dir)
 {
 	//TAGdata tagStruct;
 	//char  fileName[fileNameLength+1];
+	
 	//ifstream mp3File;
 	b_parsing = true;
 	//first step : list all mp3 files in given directory
  	string dir = string("./"+input_dir+"/");
-    vector<string> files = vector<string>();
-
+   
+std::cout << "parsing directory" << dir << std::endl;
     getdir(dir,files);
 
 	//Start loop
@@ -96,8 +95,11 @@ int read_json(string input_dir)
 
   	std::string text = "{\"ID\": \"0\",\"path\": \"James\", \"Song Name\": \"Bond\", \"artist\": \"yop\" , \"play\": 0 }\n";
   	std::ofstream outFile;
+  	string json_name = string(input_dir+".json");
+  
+  	
 	outFile.open("output.json");
-	
+	root.clear();
 	for (unsigned int i = 0;i < files.size();i++) {
 
 		std::cout << "Start loop" << std::endl;
@@ -188,10 +190,36 @@ std::cout << "first song init ok" << std::endl;
 
 }
 
-int NextSong() {
+void New_folder_First_song(){
+  std::random_device rd; // obtain a random number from hardware
+    std::mt19937 eng(rd()); // seed the generator
+    std::uniform_int_distribution<> distr(0, number_song);
+	int first_random_song = distr(eng);
+	while ((root[first_random_song]["play"]==1)&&(played_song<=number_song)){
+	first_random_song = distr(eng);
+	}
+	current_song = first_random_song;
+	filename = root[current_song]["path"].asString();
+	std::cout << "first song filename" << filename << std::endl;
+
+std::cout << "first song init ok" << std::endl;
+	root[current_song]["play"] = 1;
+	std::cout << "first song call vlc play" << std::endl;
+	multimedia->play(filename);
+	
+	std::cout << "first song is vlc playing" << std::endl;
+	played_song++;
+	NextSongPool();
+
+	
+}
+
+
+void NextSong() {
 	multimedia->stop();
 	next_bool=false;
 	current_song = song_choice[next_chosen_song];
+	//std::cout << "next song : next chosen song" << next_chosen_song << "next chosen song number" << current_song << std::endl;
 	filename = root[current_song]["path"].asString();
 
 	std::cout << "START: " << filename << std::endl;
@@ -207,8 +235,6 @@ int NextSong() {
 			vote[4]=0;
 	played_song++;
 	NextSongPool();
-
-return 1;
 
 }
 
@@ -243,8 +269,13 @@ void NextSongPool() {
 }
 
 void Autoplay() {
-
-	if ((!multimedia->is_playing())&&!multimedia->is_paused()){
+  /* debug
+std::cout << "START: CALL AUTOPLAY "  << std::endl;
+std::cout << "AUTOPLAY : is playing "  << multimedia->is_playing() << std::endl;
+std::cout << "AUTOPLAY : is paused "  << multimedia->is_paused() << std::endl;
+std::cout << "AUTOPLAY : is finished "  << multimedia->is_finished() << std::endl;
+*/
+	if (((!multimedia->is_playing())&&!multimedia->is_paused())||multimedia->is_finished()){
 		std::cout << "START: AUTOPLAY "  << std::endl;
 		NextSong();
 	}
@@ -294,23 +325,7 @@ int main() {
 	//filename = root[distr(eng)]["path"].asString();
 
 	std::cout << "START: " << filename << std::endl;
-	// Register our custom sf::SoundFileReader for mp3 files.
-	// This is the preferred way of adding support for a new audio format.
-	// Other formats will be handled by their respective readers.
-	
 
-	// Load a music to play
-	//sf::Music music;
-
-
-
-
-
-	
-	/*if (!music.openFromFile(filename)) {
-		std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
-		return EXIT_FAILURE;
-	}*/
 
 	// Now we are sure we can play the file
 	// Set up the main window
@@ -361,33 +376,41 @@ int main() {
 		// Process events
 		sf::Event event;
 		
-
-		
 		//path choice(music);	
 		while (window.pollEvent(event)) {
-
+		  //std::remove("output.json");
+		 /* for (unsigned int i = 0;i < files.size();i++) {
+		    delete root[i];
+		  }
+		  */
+		  
+      
+      
 			if (event.type == sf::Event::Closed) {
 				window.close();
 			} else if(event.type == sf::Event::KeyPressed) {
 				// the user interface: SPACE pauses and plays, ESC quits
 				switch (event.key.code) {
 					case sf::Keyboard::F1:
-					menu_path = "hiphop";
-					read_json(menu_path);
+					  menu_path = "hiphop";
+					  //root.clear();
+					  read_json(menu_path);
+					  break;
 					
-						break;
 					case sf::Keyboard::F2:
-					menu_path = "disco";
-					read_json(menu_path);
+					  menu_path = "disco";
+					  //root.clear();
+					  read_json(menu_path);
+					  break;
 					
-						break;
 					case sf::Keyboard::Escape:
-					std::cout << "pressspace - escape" << std::endl;
+					  std::cout << "press escape - escape" << std::endl;
 						window.close();
 						break;
 					case sf::Keyboard::Enter:
-					NextSong();
-					menu = false;
+					  played_song=0;
+					  New_folder_First_song();
+					  menu = false;
 						break;
 					default:
 						break;
@@ -518,13 +541,13 @@ int main() {
 		// Process events
 		sf::Event event;
 		
-		//Autoplay();
+		Autoplay();
 
 		//elapsed time is a % from 0.0 to 1.0
 		float elapsed  = multimedia->get_position()/1000;
 
 		float start_voting_time = 2 ;
-		float end_voting_time = 30;
+		float end_voting_time = 10;
 		//std::cout << "song time. " << song_lenght.asSeconds() << "remaining time :  " << elapsed.asSeconds() << std::endl;
 
 
@@ -540,7 +563,9 @@ int main() {
 		if((elapsed >= end_voting_time)&&(elapsed<=end_voting_time+1)) {
 
 			next_chosen_song = ChosenSong(vote);
+			//std::cout << "next chosen song. " << next_chosen_song << std::endl;
 			next_bool=true;
+			next_button=true;
 			}
 
 		//next_song_pool(music);	
@@ -561,10 +586,10 @@ int main() {
 						break;
 					case sf::Keyboard::N:
 						std::cout << "pressspace - nextsong" << std::endl;
-						if (!NextSong()) {
-		std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
-		return EXIT_FAILURE;
-					}
+						if (next_button){
+						  next_button = false;
+						NextSong();
+						}
 						break;
 
 					case sf::Keyboard::A:
@@ -626,9 +651,9 @@ int main() {
 						break;
 
 					case 4:
-						if (!NextSong()) {
-							std::cout << "check your file path. also only wav, flac, ogg and mp3 are supported." << std::endl;
-							return EXIT_FAILURE;
+					if (next_button){
+						  next_button = false;
+						  NextSong();
 						}
 						break;
 
@@ -652,7 +677,36 @@ int main() {
 		font_neon.loadFromFile("Neon.ttf");
 		float thickness = 4.f;
 		
-
+		sf::RectangleShape rectangleplay(sf::Vector2f(300, 10));
+		rectangleplay.setFillColor(sf::Color::White);
+		rectangleplay.setOutlineColor(sf::Color::Black);
+		rectangleplay.setOutlineThickness(1.0f);
+		rectangleplay.setPosition(400, first_line+42);
+		
+		// update the playing bar with time
+		float total_time;
+		float current_time;
+		float current_curser;
+	
+		total_time = multimedia->get_lenght();
+		current_time = multimedia->get_current_time();
+		current_curser = (current_time*300.0)/total_time;
+		
+	  sf::RectangleShape rectangleplaycurrent(sf::Vector2f(current_curser, 10));
+		rectangleplaycurrent.setFillColor(sf::Color::Yellow);
+		rectangleplaycurrent.setOutlineThickness(0.0f);
+		rectangleplaycurrent.setPosition(400, first_line+42);
+		
+	/*		sf::Texture texjimmy;
+	texjimmy.loadFromFile("jimmy01.gif");
+	// Create a sprite
+	
+	
+	sf::Sprite spriteJimmy;
+	spriteJimmy.setTexture(texjimmy);
+	spriteJimmy.setPosition(300, 400);
+	//spriteJimmy.scale(0.8,0.8);*/
+		
 		sf::Text Title;
 		sf::Text Artist;
 		sf::Text CurrentText;
@@ -685,12 +739,14 @@ int main() {
 		CurrentText.setStyle(sf::Text::Bold | sf::Text::Underlined);
 		CurrentText.setOutlineColor(sf::Color::Black);
 		CurrentText.setOutlineThickness(3.0f);
-
+		
+		window.draw(CurrentText);
 		window.draw(Artist);
 		window.draw(Title);
-		window.draw(CurrentText);
 		window.draw(spriteLogo);
-		
+		window.draw(rectangleplay);
+		window.draw(rectangleplaycurrent);
+		//window.draw(spriteJimmy);
 
 		sf::Text Choice1_Title;
 		sf::Text Choice1_Artist;
@@ -720,12 +776,12 @@ int main() {
 		sf::Text Next_CurrentText;
 
 		// update Choices info
-
+float delta = 80.0f;
 
 		Choice1_CurrentText.setFont(font);
 		Choice1_CurrentText.setString("Next song 1");
-		Choice1_CurrentText.setColor(sf::Color::Green);
-		Choice1_CurrentText.setPosition(40.0f, 150.0f);
+		Choice1_CurrentText.setColor(sf::Color::White);
+		Choice1_CurrentText.setPosition(40.0f, 150.0f+delta);
 		Choice1_CurrentText.setOutlineColor(sf::Color::Black);
 		Choice1_CurrentText.setOutlineThickness(3.0f);
 		Choice1_CurrentText.setCharacterSize(24);
@@ -733,19 +789,19 @@ int main() {
 
 		Choice1_Artist.setFont(font_neon);
 		Choice1_Artist.setString(root[song_choice[1]]["artist"].asString());
-		Choice1_Artist.setColor(sf::Color::White);
+		Choice1_Artist.setColor(sf::Color::Blue);
 		Choice1_Artist.setOutlineThickness(3.0f);
 		Choice1_Artist.setOutlineColor(sf::Color::Black);
-		Choice1_Artist.setPosition(40.0f, 180.0f);
+		Choice1_Artist.setPosition(40.0f, 180.0f+delta);
 		Choice1_Artist.setCharacterSize(20);
 		Choice1_Artist.setStyle(sf::Text::Bold);
 
 		Choice1_Title.setFont(font_neon);
 		Choice1_Title.setString(root[song_choice[1]]["Song Name"].asString());
-		Choice1_Title.setColor(sf::Color::White);
+		Choice1_Title.setColor(sf::Color::Blue);
 		Choice1_Title.setOutlineThickness(3.0f);
 		Choice1_Title.setOutlineColor(sf::Color::Black);
-		Choice1_Title.setPosition(40.0f, 200.0f);
+		Choice1_Title.setPosition(40.0f, 200.0f+delta);
 		Choice1_Title.setCharacterSize(15);
 		Choice1_Title.setStyle(sf::Text::Bold);
 
@@ -755,33 +811,33 @@ int main() {
 		Choice1_Vote.setOutlineThickness(3.0f);
 		Choice1_Vote.setOutlineColor(sf::Color::Black);
 		Choice1_Vote.setPosition(100.0f, 520.0f);
-		Choice1_Vote.setCharacterSize(20+(vote[1]/2));
+		Choice1_Vote.setCharacterSize(40);
 		Choice1_Vote.setStyle(sf::Text::Bold);
 
 		Choice2_CurrentText.setFont(font);
 		Choice2_CurrentText.setString("Next song 2");
-		Choice2_CurrentText.setColor(sf::Color::Green);
+		Choice2_CurrentText.setColor(sf::Color::White);
 		Choice2_CurrentText.setOutlineColor(sf::Color::Black);
 		Choice2_CurrentText.setOutlineThickness(3.0f);
-		Choice2_CurrentText.setPosition(230.0f, 250.0f);
+		Choice2_CurrentText.setPosition(230.0f, 250.0f+delta);
 		Choice2_CurrentText.setCharacterSize(24);
 		Choice2_CurrentText.setStyle(sf::Text::Bold );
 
 		Choice2_Artist.setFont(font_neon);
 		Choice2_Artist.setString(root[song_choice[2]]["artist"].asString());
-		Choice2_Artist.setColor(sf::Color::White);
+		Choice2_Artist.setColor(sf::Color::Green);
 		Choice2_Artist.setOutlineColor(sf::Color::Black);
 		Choice2_Artist.setOutlineThickness(3.0f);
-		Choice2_Artist.setPosition(230.0f, 280.0f);
+		Choice2_Artist.setPosition(230.0f, 280.0f+delta);
 		Choice2_Artist.setCharacterSize(20);
 		Choice2_Artist.setStyle(sf::Text::Bold);
 
 		Choice2_Title.setFont(font_neon);
 		Choice2_Title.setString(root[song_choice[2]]["Song Name"].asString());
-		Choice2_Title.setColor(sf::Color::White);
+		Choice2_Title.setColor(sf::Color::Green);
 		Choice2_Title.setOutlineColor(sf::Color::Black);
 		Choice2_Title.setOutlineThickness(3.0f);
-		Choice2_Title.setPosition(230.0f, 300.0f);
+		Choice2_Title.setPosition(230.0f, 300.0f+delta);
 		Choice2_Title.setCharacterSize(15);
 		Choice2_Title.setStyle(sf::Text::Bold);
 
@@ -791,33 +847,33 @@ int main() {
 		Choice2_Vote.setOutlineColor(sf::Color::Black);
 		Choice2_Vote.setOutlineThickness(3.0f);
 		Choice2_Vote.setPosition(280.0f, 520.0f);
-		Choice2_Vote.setCharacterSize(20+(vote[2]/2));
+		Choice2_Vote.setCharacterSize(40);
 		Choice2_Vote.setStyle(sf::Text::Bold);
 
 		Choice3_CurrentText.setFont(font);
 		Choice3_CurrentText.setString("Next song 3");
-		Choice3_CurrentText.setColor(sf::Color::Green);
+		Choice3_CurrentText.setColor(sf::Color::White);
 		Choice3_CurrentText.setOutlineColor(sf::Color::Black);
 		Choice3_CurrentText.setOutlineThickness(3.0f);
-		Choice3_CurrentText.setPosition(420.0f, 150.0f);
+		Choice3_CurrentText.setPosition(420.0f, 150.0f+delta);
 		Choice3_CurrentText.setCharacterSize(24);
 		Choice3_CurrentText.setStyle(sf::Text::Bold );
 
 		Choice3_Artist.setFont(font_neon);
 		Choice3_Artist.setString(root[song_choice[3]]["artist"].asString());
-		Choice3_Artist.setColor(sf::Color::White);
+		Choice3_Artist.setColor(sf::Color::Red);
 		Choice3_Artist.setOutlineColor(sf::Color::Black);
 		Choice3_Artist.setOutlineThickness(3.0f);
-		Choice3_Artist.setPosition(420.0f, 180.0f);
+		Choice3_Artist.setPosition(420.0f, 180.0f+delta);
 		Choice3_Artist.setCharacterSize(20);
 		Choice3_Artist.setStyle(sf::Text::Bold);
 
 		Choice3_Title.setFont(font_neon);
 		Choice3_Title.setString(root[song_choice[3]]["Song Name"].asString());
-		Choice3_Title.setColor(sf::Color::White);
+		Choice3_Title.setColor(sf::Color::Red);
 		Choice3_Title.setOutlineColor(sf::Color::Black);
 		Choice3_Title.setOutlineThickness(3.0f);
-		Choice3_Title.setPosition(420.0f, 200.0f);
+		Choice3_Title.setPosition(420.0f, 200.0f+delta);
 		Choice3_Title.setCharacterSize(15);
 		Choice3_Title.setStyle(sf::Text::Bold);
 
@@ -827,33 +883,33 @@ int main() {
 		Choice3_Vote.setOutlineColor(sf::Color::Black);
 		Choice3_Vote.setOutlineThickness(3.0f);
 		Choice3_Vote.setPosition(460.0f, 520.0f);
-		Choice3_Vote.setCharacterSize(20+(vote[3]/2));
+		Choice3_Vote.setCharacterSize(40);
 		Choice3_Vote.setStyle(sf::Text::Bold);
 
 		Choice4_CurrentText.setFont(font);
 		Choice4_CurrentText.setString("Next song 4");
-		Choice4_CurrentText.setColor(sf::Color::Green);
+		Choice4_CurrentText.setColor(sf::Color::White);
 		Choice4_CurrentText.setOutlineColor(sf::Color::Black);
 		Choice4_CurrentText.setOutlineThickness(3.0f);
-		Choice4_CurrentText.setPosition(610.0f, 250.0f);
+		Choice4_CurrentText.setPosition(610.0f, 250.0f+delta);
 		Choice4_CurrentText.setCharacterSize(24);
 		Choice4_CurrentText.setStyle(sf::Text::Bold );
 
 		Choice4_Artist.setFont(font_neon);
 		Choice4_Artist.setString(root[song_choice[4]]["artist"].asString());
-		Choice4_Artist.setColor(sf::Color::White);
+		Choice4_Artist.setColor(sf::Color::Yellow);
 		Choice4_Artist.setOutlineColor(sf::Color::Black);
 		Choice4_Artist.setOutlineThickness(3.0f);
-		Choice4_Artist.setPosition(610.0f, 280.0f);
+		Choice4_Artist.setPosition(610.0f, 280.0f+delta);
 		Choice4_Artist.setCharacterSize(20);
 		Choice4_Artist.setStyle(sf::Text::Bold);
 
 		Choice4_Title.setFont(font_neon);
 		Choice4_Title.setString(root[song_choice[4]]["Song Name"].asString());
-		Choice4_Title.setColor(sf::Color::White);
+		Choice4_Title.setColor(sf::Color::Yellow);
 		Choice4_Title.setOutlineColor(sf::Color::Black);
 		Choice4_Title.setOutlineThickness(3.0f);
-		Choice4_Title.setPosition(610.0f, 300.0f);
+		Choice4_Title.setPosition(610.0f, 300.0f+delta);
 		Choice4_Title.setCharacterSize(15);
 		Choice4_Title.setStyle(sf::Text::Bold);
 
@@ -863,7 +919,7 @@ int main() {
 		Choice4_Vote.setOutlineColor(sf::Color::Black);
 		Choice4_Vote.setOutlineThickness(3.0f);
 		Choice4_Vote.setPosition(640.0f, 520.0f);
-		Choice4_Vote.setCharacterSize(20+(vote[4]/2));
+		Choice4_Vote.setCharacterSize(40);
 		Choice4_Vote.setStyle(sf::Text::Bold);
 
 		sf::RectangleShape rectanglevote1(sf::Vector2f(100, -(5+vote[1])));
@@ -923,7 +979,7 @@ int main() {
 		Vote_CurrentText.setColor(sf::Color::Red);
 		Vote_CurrentText.setOutlineColor(sf::Color::Black);
 		Vote_CurrentText.setOutlineThickness(3.0f);
-		Vote_CurrentText.setPosition(300.0f, 350.0f);
+		Vote_CurrentText.setPosition(300.0f, 440.0f);
 		Vote_CurrentText.setCharacterSize(35);
 		Vote_CurrentText.setStyle(sf::Text::Bold);
 
@@ -932,7 +988,7 @@ int main() {
 		Vote_Time.setColor(sf::Color::Red);
 		Vote_Time.setOutlineColor(sf::Color::Black);
 		Vote_Time.setOutlineThickness(4.0f);
-		Vote_Time.setPosition(350.0f, 400.0f);
+		Vote_Time.setPosition(390.0f, 480.0f);
 		Vote_Time.setCharacterSize(50);
 		Vote_Time.setStyle(sf::Text::Bold);
 
