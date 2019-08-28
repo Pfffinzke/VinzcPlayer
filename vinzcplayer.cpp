@@ -50,6 +50,8 @@ bool menu;
 bool next_bool;
 bool b_parsing;
 
+sf::Clock clock_sprite;
+
 /*function... might want it in some class?*/
 
 
@@ -366,8 +368,29 @@ int main() {
 	sf::Sprite spriteLogo;
 	spriteLogo.setTexture(texLogo);
 	spriteLogo.setPosition(200, 20);
+	
+	// sprite for voting buttons
 
+	sf::Texture texturej1;
+  texturej1.loadFromFile("spriteJ1.png");
+  sf::IntRect rectSourceSprite(0, 0, 150, 150);
+  sf::Sprite spritej1(texturej1,rectSourceSprite);
+  spritej1.setPosition(50, 280);
 
+  sf::Texture texturej2;
+  texturej2.loadFromFile("spriteJ2.png");
+  sf::Sprite spritej2(texturej2,rectSourceSprite);
+  spritej2.setPosition(250, 200);
+  
+  sf::Texture texturej3;
+  texturej3.loadFromFile("spriteJ3.png");
+  sf::Sprite spritej3(texturej3,rectSourceSprite);
+  spritej3.setPosition(450, 280);
+
+  sf::Texture texturej4;
+  texturej4.loadFromFile("spriteJ4.png");
+  sf::Sprite spritej4(texturej4,rectSourceSprite);
+  spritej4.setPosition(650, 200);
 
 // Start the Menu loop
 	while (window.isOpen())
@@ -697,15 +720,6 @@ int main() {
 		rectangleplaycurrent.setOutlineThickness(0.0f);
 		rectangleplaycurrent.setPosition(400, first_line+42);
 		
-	/*		sf::Texture texjimmy;
-	texjimmy.loadFromFile("jimmy01.gif");
-	// Create a sprite
-	
-	
-	sf::Sprite spriteJimmy;
-	spriteJimmy.setTexture(texjimmy);
-	spriteJimmy.setPosition(300, 400);
-	//spriteJimmy.scale(0.8,0.8);*/
 		
 		sf::Text Title;
 		sf::Text Artist;
@@ -973,6 +987,31 @@ float delta = 80.0f;
 
 		// print option text
 	if(choice==true){
+	  
+	  // voting buttons
+	  
+
+  
+
+  
+//std::cout << "elapsed time" << clock_sprite.getElapsedTime().asSeconds() << std::endl;
+    if (clock_sprite.getElapsedTime().asSeconds() > 1.0f){
+      std::cout << "debug more than 1.0 sec" << std::endl;
+      std::cout << "source sprite left" << rectSourceSprite.left << std::endl;
+      if (rectSourceSprite.left == 150)
+        {rectSourceSprite.left = 0;
+        clock_sprite.restart();}
+      else
+        {rectSourceSprite.left += 150;
+        clock_sprite.restart();}
+
+      spritej1.setTextureRect(rectSourceSprite);
+      spritej2.setTextureRect(rectSourceSprite);
+      spritej3.setTextureRect(rectSourceSprite);
+      spritej4.setTextureRect(rectSourceSprite);
+    }
+    
+    
 		// set voting time
 		Vote_CurrentText.setFont(font_neon);
 		Vote_CurrentText.setString("TIME TO VOTE");
@@ -993,25 +1032,29 @@ float delta = 80.0f;
 		Vote_Time.setStyle(sf::Text::Bold);
 
 		//display text
+		window.draw(spritej1);
+		window.draw(spritej2);
+		window.draw(spritej3);
+		window.draw(spritej4);
 		window.draw(rectanglevote1);
 		window.draw(rectanglevote2);
 		window.draw(rectanglevote3);
 		window.draw(rectanglevote4);
+		window.draw(Choice1_CurrentText);
 		window.draw(Choice1_Artist);
 		window.draw(Choice1_Title);
-		window.draw(Choice1_CurrentText);
 		window.draw(Choice1_Vote);
+		window.draw(Choice2_CurrentText);
 		window.draw(Choice2_Artist);
 		window.draw(Choice2_Title);
-		window.draw(Choice2_CurrentText);
 		window.draw(Choice2_Vote);
+		window.draw(Choice3_CurrentText);
 		window.draw(Choice3_Artist);
 		window.draw(Choice3_Title);
-		window.draw(Choice3_CurrentText);
 		window.draw(Choice3_Vote);
+		window.draw(Choice4_CurrentText);
 		window.draw(Choice4_Artist);
 		window.draw(Choice4_Title);
-		window.draw(Choice4_CurrentText);
 		window.draw(Choice4_Vote);
 		window.draw(Vote_CurrentText);
 		window.draw(Vote_Time);
