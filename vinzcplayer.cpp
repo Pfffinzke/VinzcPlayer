@@ -48,9 +48,11 @@ bool choice;
 bool next_button = true;
 bool menu;
 bool next_bool;
+bool next_pushed = false;
 bool b_parsing;
 
 sf::Clock clock_sprite;
+sf::Clock clock_autoplay;
 
 /*function... might want it in some class?*/
 
@@ -183,7 +185,7 @@ std::cout << "first song init ok" << std::endl;
 	root[current_song]["play"] = 1;
 	std::cout << "first song call vlc play" << std::endl;
 	multimedia->play(filename);
-	
+	next_pushed=false;
 	std::cout << "first song is vlc playing" << std::endl;
 	played_song++;
 	NextSongPool();
@@ -208,7 +210,7 @@ std::cout << "first song init ok" << std::endl;
 	root[current_song]["play"] = 1;
 	std::cout << "first song call vlc play" << std::endl;
 	multimedia->play(filename);
-	
+	next_pushed=false;
 	std::cout << "first song is vlc playing" << std::endl;
 	played_song++;
 	NextSongPool();
@@ -221,7 +223,6 @@ void NextSong() {
 	multimedia->stop();
 	next_bool=false;
 	current_song = song_choice[next_chosen_song];
-	//std::cout << "next song : next chosen song" << next_chosen_song << "next chosen song number" << current_song << std::endl;
 	filename = root[current_song]["path"].asString();
 
 	std::cout << "START: " << filename << std::endl;
@@ -229,7 +230,7 @@ void NextSong() {
 	
 	root[current_song]["play"] = 1;
 	multimedia->play(filename);
-	
+	next_pushed=false;
 	// chosen song is played reset vote
 			vote[1]=0;
 			vote[2]=0;
@@ -277,13 +278,12 @@ std::cout << "AUTOPLAY : is playing "  << multimedia->is_playing() << std::endl;
 std::cout << "AUTOPLAY : is paused "  << multimedia->is_paused() << std::endl;
 std::cout << "AUTOPLAY : is finished "  << multimedia->is_finished() << std::endl;
 */
-	if (((!multimedia->is_playing())&&!multimedia->is_paused())||multimedia->is_finished()){
-		std::cout << "START: AUTOPLAY "  << std::endl;
+
+	if (((!multimedia->is_playing())&&!multimedia->is_paused()&&!next_pushed)||multimedia->is_finished()){
+
 		NextSong();
+
 	}
-	
-	
-	
 }
 
 
@@ -391,6 +391,22 @@ int main() {
   texturej4.loadFromFile("spriteJ4.png");
   sf::Sprite spritej4(texturej4,rectSourceSprite);
   spritej4.setPosition(650, 200);
+  
+  sf::Font font;
+	font.loadFromFile("ALBA.ttf");
+	sf::Font font_neon;
+	font_neon.loadFromFile("Neon.ttf");
+	float thickness = 3.0f;
+  
+  sf::Text menu_txt;
+  menu_txt.setFont(font);
+	menu_txt.setString("Press - M - for changing music directory");
+	menu_txt.setColor(sf::Color::White);
+	menu_txt.setOutlineColor(sf::Color::Black);
+	menu_txt.setOutlineThickness(2.0f);
+	menu_txt.setPosition(400.0f, 570.0f);
+	menu_txt.setCharacterSize(23);
+
 
 // Start the Menu loop
 	while (window.isOpen())
@@ -465,11 +481,8 @@ int main() {
 		window.clear();
 		// Draw the sprite
 		window.draw(sprite);
-		sf::Font font;
-		font.loadFromFile("ALBA.ttf");
-		sf::Font font_neon;
-		font_neon.loadFromFile("Neon.ttf");
-		float thickness = 3.f;
+		
+
 		
 	sf::Texture texButton;
 	texButton.loadFromFile("boutton.png");
@@ -643,8 +656,8 @@ int main() {
 		//elapsed time is a % from 0.0 to 1.0
 		float elapsed  = multimedia->get_position()/1000;
 
-		float start_voting_time = 2 ;
-		float end_voting_time = 10;
+		float start_voting_time = 60 ;
+		float end_voting_time = 90;
 		//std::cout << "song time. " << song_lenght.asSeconds() << "remaining time :  " << elapsed.asSeconds() << std::endl;
 
 
@@ -660,7 +673,7 @@ int main() {
 		if((elapsed >= end_voting_time)&&(elapsed<=end_voting_time+1)) {
 
 			next_chosen_song = ChosenSong(vote);
-			//std::cout << "next chosen song. " << next_chosen_song << std::endl;
+			std::cout << "next chosen song. " << next_chosen_song << std::endl;
 			next_bool=true;
 			next_button=true;
 			}
@@ -685,6 +698,7 @@ int main() {
 						std::cout << "pressspace - nextsong" << std::endl;
 						if (next_button){
 						  next_button = false;
+						  next_pushed=true;
 						NextSong();
 						}
 						break;
@@ -750,6 +764,7 @@ int main() {
 					case 4:
 					if (next_button){
 						  next_button = false;
+						  next_pushed = true;
 						  NextSong();
 						}
 						break;
@@ -768,6 +783,7 @@ int main() {
 		window.clear();
 		// Draw the sprite
 		window.draw(sprite);
+		window.draw(menu_txt);
 		sf::Font font;
 		font.loadFromFile("ALBA.ttf");
 		sf::Font font_neon;
@@ -1070,15 +1086,12 @@ float delta = 80.0f;
   
 //std::cout << "elapsed time" << clock_sprite.getElapsedTime().asSeconds() << std::endl;
     if (clock_sprite.getElapsedTime().asSeconds() > 1.0f){
-      std::cout << "debug more than 1.0 sec" << std::endl;
-      std::cout << "source sprite left" << rectSourceSprite.left << std::endl;
       if (rectSourceSprite.left == 150)
         {rectSourceSprite.left = 0;
         clock_sprite.restart();}
       else
         {rectSourceSprite.left += 150;
         clock_sprite.restart();}
-
       spritej1.setTextureRect(rectSourceSprite);
       spritej2.setTextureRect(rectSourceSprite);
       spritej3.setTextureRect(rectSourceSprite);
