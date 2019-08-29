@@ -475,8 +475,8 @@ int main() {
 	texButton.loadFromFile("boutton.png");
 	// Create a sprite
 	
-	float button_line = first_line + 50;
-	float end_line = 600.0;
+	float button_line = first_line + 20;
+	float end_line = 500.0;
 	
 	sf::Sprite spriteButton1;
 	spriteButton1.setTexture(texButton);
@@ -500,7 +500,7 @@ int main() {
 	
 	sf::Sprite spriteButton5;
 	spriteButton5.setTexture(texButton);
-	spriteButton5.setPosition(300, button_line*3);
+	spriteButton5.setPosition(250, button_line*3);
 	spriteButton5.scale(0.8,0.8);
 
 
@@ -538,7 +538,7 @@ int main() {
 		Path_Choice1.setColor(sf::Color::Green);
 		Path_Choice1.setOutlineColor(sf::Color::Black);
 		Path_Choice1.setOutlineThickness(thickness);
-		Path_Choice1.setPosition(135.0f, first_line+10);
+		Path_Choice1.setPosition(135.0f, button_line+10);
 		Path_Choice1.setCharacterSize(30);
 		Path_Choice1.setStyle(sf::Text::Bold );
 
@@ -547,7 +547,7 @@ int main() {
 		Path_Choice2.setColor(sf::Color::Green);
 		Path_Choice2.setOutlineColor(sf::Color::Black);
 		Path_Choice2.setOutlineThickness(thickness);
-		Path_Choice2.setPosition(410.0f, first_line+10);
+		Path_Choice2.setPosition(420.0f, button_line+10);
 		Path_Choice2.setCharacterSize(30);
 		Path_Choice2.setStyle(sf::Text::Bold);
 		
@@ -565,7 +565,7 @@ int main() {
 		Path_Choice4.setColor(sf::Color::Green);
 		Path_Choice4.setOutlineColor(sf::Color::Black);
 		Path_Choice4.setOutlineThickness(thickness);
-		Path_Choice4.setPosition(410.0f, button_line*2+10);
+		Path_Choice4.setPosition(440.0f, button_line*2+10);
 		Path_Choice4.setCharacterSize(30);
 		Path_Choice4.setStyle(sf::Text::Bold);
 		
@@ -574,7 +574,7 @@ int main() {
 		Path_Choice5.setColor(sf::Color::Green);
 		Path_Choice5.setOutlineColor(sf::Color::Black);
 		Path_Choice5.setOutlineThickness(thickness);
-		Path_Choice5.setPosition(300.0f, button_line*3+10);
+		Path_Choice5.setPosition(270.0f, button_line*3+10);
 		Path_Choice5.setCharacterSize(30);
 		Path_Choice5.setStyle(sf::Text::Bold );
 
@@ -584,7 +584,7 @@ int main() {
 		Path_Selected.setColor(sf::Color::White);
 		Path_Selected.setOutlineColor(sf::Color::Black);
 		Path_Selected.setOutlineThickness(thickness);
-		Path_Selected.setPosition(120.0f, end_line);
+		Path_Selected.setPosition(520.0f, end_line);
 		Path_Selected.setCharacterSize(24);
 		Path_Selected.setStyle(sf::Text::Bold);
 
@@ -603,7 +603,7 @@ int main() {
 		
 		Parsing.setOutlineColor(sf::Color::Black);
 		Parsing.setOutlineThickness(thickness);
-		Parsing.setPosition(200.0f, end_line);
+		Parsing.setPosition(650.0f, end_line);
 		Parsing.setCharacterSize(24);
 		Parsing.setStyle(sf::Text::Bold);
 
@@ -612,7 +612,7 @@ int main() {
 		Confirm.setColor(sf::Color::Green);
 		Confirm.setOutlineColor(sf::Color::Black);
 		Confirm.setOutlineThickness(thickness);
-		Confirm.setPosition(120.0f, end_line+25);
+		Confirm.setPosition(520.0f, end_line+25);
 		Confirm.setCharacterSize(24);
 		Confirm.setStyle(sf::Text::Bold);
 
@@ -620,9 +620,9 @@ int main() {
 		window.draw(Welcome);
 		window.draw(Path_Choice1);
 		window.draw(Path_Choice2);
-		window.draw(Path_Choice3)
-		window.draw(Path_Choice4)
-		window.draw(Path_Choice5)
+		window.draw(Path_Choice3);
+		window.draw(Path_Choice4);
+		window.draw(Path_Choice5);
 		window.draw(Path_Selected);
 		window.draw(Parsing);
 		window.draw(Confirm);
@@ -877,20 +877,20 @@ float delta = 80.0f;
 
 		Choice1_Artist.setFont(font_neon);
 		Choice1_Artist.setString(root[song_choice[1]]["artist"].asString());
-		Choice1_Artist.setColor(sf::Color::Blue);
+		Choice1_Artist.setColor(sf::Color(55,55,255,255));
 		Choice1_Artist.setOutlineThickness(2.0f);
 		Choice1_Artist.setOutlineColor(sf::Color::Black);
 		Choice1_Artist.setPosition(40.0f, 150.0f+delta);
-		Choice1_Artist.setCharacterSize(20);
+		Choice1_Artist.setCharacterSize(22);
 		Choice1_Artist.setStyle(sf::Text::Bold);
 
 		Choice1_Title.setFont(font_neon);
 		Choice1_Title.setString(root[song_choice[1]]["Song Name"].asString());
-		Choice1_Title.setColor(sf::Color::Blue);
+		Choice1_Title.setColor(sf::Color(55,55,255,255));
 		Choice1_Title.setOutlineThickness(2.0f);
 		Choice1_Title.setOutlineColor(sf::Color::Black);
 		Choice1_Title.setPosition(40.0f, 170.0f+delta);
-		Choice1_Title.setCharacterSize(15);
+		Choice1_Title.setCharacterSize(18);
 		Choice1_Title.setStyle(sf::Text::Bold);
 
 		Choice1_Vote.setFont(font_neon);
@@ -917,7 +917,7 @@ float delta = 80.0f;
 		Choice2_Artist.setOutlineColor(sf::Color::Black);
 		Choice2_Artist.setOutlineThickness(2.0f);
 		Choice2_Artist.setPosition(230.0f, 310.0f+delta);
-		Choice2_Artist.setCharacterSize(20);
+		Choice2_Artist.setCharacterSize(22);
 		Choice2_Artist.setStyle(sf::Text::Bold);
 
 		Choice2_Title.setFont(font_neon);
@@ -926,7 +926,7 @@ float delta = 80.0f;
 		Choice2_Title.setOutlineColor(sf::Color::Black);
 		Choice2_Title.setOutlineThickness(2.0f);
 		Choice2_Title.setPosition(230.0f, 330.0f+delta);
-		Choice2_Title.setCharacterSize(15);
+		Choice2_Title.setCharacterSize(18);
 		Choice2_Title.setStyle(sf::Text::Bold);
 
 		Choice2_Vote.setFont(font_neon);
@@ -953,7 +953,7 @@ float delta = 80.0f;
 		Choice3_Artist.setOutlineColor(sf::Color::Black);
 		Choice3_Artist.setOutlineThickness(2.0f);
 		Choice3_Artist.setPosition(420.0f, 150.0f+delta);
-		Choice3_Artist.setCharacterSize(20);
+		Choice3_Artist.setCharacterSize(22);
 		Choice3_Artist.setStyle(sf::Text::Bold);
 
 		Choice3_Title.setFont(font_neon);
@@ -962,7 +962,7 @@ float delta = 80.0f;
 		Choice3_Title.setOutlineColor(sf::Color::Black);
 		Choice3_Title.setOutlineThickness(2.0f);
 		Choice3_Title.setPosition(420.0f, 170.0f+delta);
-		Choice3_Title.setCharacterSize(15);
+		Choice3_Title.setCharacterSize(18);
 		Choice3_Title.setStyle(sf::Text::Bold);
 
 		Choice3_Vote.setFont(font_neon);
@@ -989,7 +989,7 @@ float delta = 80.0f;
 		Choice4_Artist.setOutlineColor(sf::Color::Black);
 		Choice4_Artist.setOutlineThickness(2.0f);
 		Choice4_Artist.setPosition(610.0f, 310.0f+delta);
-		Choice4_Artist.setCharacterSize(20);
+		Choice4_Artist.setCharacterSize(22);
 		Choice4_Artist.setStyle(sf::Text::Bold);
 
 		Choice4_Title.setFont(font_neon);
@@ -998,7 +998,7 @@ float delta = 80.0f;
 		Choice4_Title.setOutlineColor(sf::Color::Black);
 		Choice4_Title.setOutlineThickness(2.0f);
 		Choice4_Title.setPosition(610.0f, 330.0f+delta);
-		Choice4_Title.setCharacterSize(15);
+		Choice4_Title.setCharacterSize(18);
 		Choice4_Title.setStyle(sf::Text::Bold);
 
 		Choice4_Vote.setFont(font_neon);
@@ -1106,10 +1106,6 @@ float delta = 80.0f;
 		Vote_Time.setStyle(sf::Text::Bold);
 
 		//display text
-		window.draw(spritej1);
-		window.draw(spritej2);
-		window.draw(spritej3);
-		window.draw(spritej4);
 		window.draw(rectanglevote1);
 		window.draw(rectanglevote2);
 		window.draw(rectanglevote3);
@@ -1118,18 +1114,22 @@ float delta = 80.0f;
 		window.draw(Choice1_Artist);
 		window.draw(Choice1_Title);
 		window.draw(Choice1_Vote);
+		window.draw(spritej1);
 		window.draw(Choice2_CurrentText);
 		window.draw(Choice2_Artist);
 		window.draw(Choice2_Title);
 		window.draw(Choice2_Vote);
+		window.draw(spritej2);
 		window.draw(Choice3_CurrentText);
 		window.draw(Choice3_Artist);
 		window.draw(Choice3_Title);
 		window.draw(Choice3_Vote);
+		window.draw(spritej3);
 		window.draw(Choice4_CurrentText);
 		window.draw(Choice4_Artist);
 		window.draw(Choice4_Title);
 		window.draw(Choice4_Vote);
+		window.draw(spritej4);
 		window.draw(Vote_CurrentText);
 		window.draw(Vote_Time);
 		
