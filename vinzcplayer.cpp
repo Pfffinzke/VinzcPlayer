@@ -415,17 +415,35 @@ int main() {
 				// the user interface: SPACE pauses and plays, ESC quits
 				switch (event.key.code) {
 					case sf::Keyboard::F1:
-					  menu_path = "hiphop";
+					  menu_path = "hip-hop";
 					  //root.clear();
 					  read_json(menu_path);
 					  break;
 					
 					case sf::Keyboard::F2:
-					  menu_path = "disco";
+					  menu_path = "Funk-Disco";
 					  //root.clear();
 					  read_json(menu_path);
 					  break;
 					
+					case sf::Keyboard::F3:
+					  menu_path = "latino";
+					  //root.clear();
+					  read_json(menu_path);
+					  break;
+					  
+					case sf::Keyboard::F4:
+					  menu_path = "party";
+					  //root.clear();
+					  read_json(menu_path);
+					  break;
+					  
+					case sf::Keyboard::F5:
+					  menu_path = "full";
+					  //root.clear();
+					  read_json(menu_path);
+					  break;
+					  
 					case sf::Keyboard::Escape:
 					  std::cout << "press escape - escape" << std::endl;
 						window.close();
@@ -457,24 +475,49 @@ int main() {
 	texButton.loadFromFile("boutton.png");
 	// Create a sprite
 	
-	float end_line = 400.0;
+	float button_line = first_line + 50;
+	float end_line = 600.0;
+	
 	sf::Sprite spriteButton1;
 	spriteButton1.setTexture(texButton);
-	spriteButton1.setPosition(100, first_line);
+	spriteButton1.setPosition(100, button_line);
 	spriteButton1.scale(0.8,0.8);
 
 	sf::Sprite spriteButton2;
 	spriteButton2.setTexture(texButton);
-	spriteButton2.setPosition(400, first_line);
+	spriteButton2.setPosition(400, button_line);
 	spriteButton2.scale(0.8,0.8);
 	
+	sf::Sprite spriteButton3;
+	spriteButton3.setTexture(texButton);
+	spriteButton3.setPosition(100, button_line*2);
+	spriteButton3.scale(0.8,0.8);
+
+	sf::Sprite spriteButton4;
+	spriteButton4.setTexture(texButton);
+	spriteButton4.setPosition(400, button_line*2);
+	spriteButton4.scale(0.8,0.8);
+	
+	sf::Sprite spriteButton5;
+	spriteButton5.setTexture(texButton);
+	spriteButton5.setPosition(300, button_line*3);
+	spriteButton5.scale(0.8,0.8);
+
 
 	window.draw(spriteButton1);
 	window.draw(spriteButton2);
+	window.draw(spriteButton3);
+	window.draw(spriteButton4);
+	window.draw(spriteButton5);
+
 
 		sf::Text Welcome;
 		sf::Text Path_Choice1;
 		sf::Text Path_Choice2;
+		sf::Text Path_Choice3;
+		sf::Text Path_Choice4;
+		sf::Text Path_Choice5;
+
 		sf::Text Path_Selected;
 		sf::Text Confirm;
 		sf::Text Parsing;
@@ -507,6 +550,34 @@ int main() {
 		Path_Choice2.setPosition(410.0f, first_line+10);
 		Path_Choice2.setCharacterSize(30);
 		Path_Choice2.setStyle(sf::Text::Bold);
+		
+		Path_Choice3.setFont(font);
+		Path_Choice3.setString("F3 : Latino");
+		Path_Choice3.setColor(sf::Color::Green);
+		Path_Choice3.setOutlineColor(sf::Color::Black);
+		Path_Choice3.setOutlineThickness(thickness);
+		Path_Choice3.setPosition(135.0f, button_line*2+10);
+		Path_Choice3.setCharacterSize(30);
+		Path_Choice3.setStyle(sf::Text::Bold );
+
+		Path_Choice4.setFont(font);
+		Path_Choice4.setString("F4 : Party !");
+		Path_Choice4.setColor(sf::Color::Green);
+		Path_Choice4.setOutlineColor(sf::Color::Black);
+		Path_Choice4.setOutlineThickness(thickness);
+		Path_Choice4.setPosition(410.0f, button_line*2+10);
+		Path_Choice4.setCharacterSize(30);
+		Path_Choice4.setStyle(sf::Text::Bold);
+		
+		Path_Choice5.setFont(font);
+		Path_Choice5.setString("F5 : Full Playlist");
+		Path_Choice5.setColor(sf::Color::Green);
+		Path_Choice5.setOutlineColor(sf::Color::Black);
+		Path_Choice5.setOutlineThickness(thickness);
+		Path_Choice5.setPosition(300.0f, button_line*3+10);
+		Path_Choice5.setCharacterSize(30);
+		Path_Choice5.setStyle(sf::Text::Bold );
+
 
 		Path_Selected.setFont(font_neon);
 		Path_Selected.setString(menu_path);
@@ -549,6 +620,9 @@ int main() {
 		window.draw(Welcome);
 		window.draw(Path_Choice1);
 		window.draw(Path_Choice2);
+		window.draw(Path_Choice3)
+		window.draw(Path_Choice4)
+		window.draw(Path_Choice5)
 		window.draw(Path_Selected);
 		window.draw(Parsing);
 		window.draw(Confirm);
@@ -795,7 +869,7 @@ float delta = 80.0f;
 		Choice1_CurrentText.setFont(font);
 		Choice1_CurrentText.setString("Next song 1");
 		Choice1_CurrentText.setColor(sf::Color::White);
-		Choice1_CurrentText.setPosition(40.0f, 150.0f+delta);
+		Choice1_CurrentText.setPosition(40.0f, 120.0f+delta);
 		Choice1_CurrentText.setOutlineColor(sf::Color::Black);
 		Choice1_CurrentText.setOutlineThickness(3.0f);
 		Choice1_CurrentText.setCharacterSize(24);
@@ -804,18 +878,18 @@ float delta = 80.0f;
 		Choice1_Artist.setFont(font_neon);
 		Choice1_Artist.setString(root[song_choice[1]]["artist"].asString());
 		Choice1_Artist.setColor(sf::Color::Blue);
-		Choice1_Artist.setOutlineThickness(3.0f);
+		Choice1_Artist.setOutlineThickness(2.0f);
 		Choice1_Artist.setOutlineColor(sf::Color::Black);
-		Choice1_Artist.setPosition(40.0f, 180.0f+delta);
+		Choice1_Artist.setPosition(40.0f, 150.0f+delta);
 		Choice1_Artist.setCharacterSize(20);
 		Choice1_Artist.setStyle(sf::Text::Bold);
 
 		Choice1_Title.setFont(font_neon);
 		Choice1_Title.setString(root[song_choice[1]]["Song Name"].asString());
 		Choice1_Title.setColor(sf::Color::Blue);
-		Choice1_Title.setOutlineThickness(3.0f);
+		Choice1_Title.setOutlineThickness(2.0f);
 		Choice1_Title.setOutlineColor(sf::Color::Black);
-		Choice1_Title.setPosition(40.0f, 200.0f+delta);
+		Choice1_Title.setPosition(40.0f, 170.0f+delta);
 		Choice1_Title.setCharacterSize(15);
 		Choice1_Title.setStyle(sf::Text::Bold);
 
@@ -833,7 +907,7 @@ float delta = 80.0f;
 		Choice2_CurrentText.setColor(sf::Color::White);
 		Choice2_CurrentText.setOutlineColor(sf::Color::Black);
 		Choice2_CurrentText.setOutlineThickness(3.0f);
-		Choice2_CurrentText.setPosition(230.0f, 250.0f+delta);
+		Choice2_CurrentText.setPosition(230.0f, 280.0f+delta);
 		Choice2_CurrentText.setCharacterSize(24);
 		Choice2_CurrentText.setStyle(sf::Text::Bold );
 
@@ -841,8 +915,8 @@ float delta = 80.0f;
 		Choice2_Artist.setString(root[song_choice[2]]["artist"].asString());
 		Choice2_Artist.setColor(sf::Color::Green);
 		Choice2_Artist.setOutlineColor(sf::Color::Black);
-		Choice2_Artist.setOutlineThickness(3.0f);
-		Choice2_Artist.setPosition(230.0f, 280.0f+delta);
+		Choice2_Artist.setOutlineThickness(2.0f);
+		Choice2_Artist.setPosition(230.0f, 310.0f+delta);
 		Choice2_Artist.setCharacterSize(20);
 		Choice2_Artist.setStyle(sf::Text::Bold);
 
@@ -850,8 +924,8 @@ float delta = 80.0f;
 		Choice2_Title.setString(root[song_choice[2]]["Song Name"].asString());
 		Choice2_Title.setColor(sf::Color::Green);
 		Choice2_Title.setOutlineColor(sf::Color::Black);
-		Choice2_Title.setOutlineThickness(3.0f);
-		Choice2_Title.setPosition(230.0f, 300.0f+delta);
+		Choice2_Title.setOutlineThickness(2.0f);
+		Choice2_Title.setPosition(230.0f, 330.0f+delta);
 		Choice2_Title.setCharacterSize(15);
 		Choice2_Title.setStyle(sf::Text::Bold);
 
@@ -869,7 +943,7 @@ float delta = 80.0f;
 		Choice3_CurrentText.setColor(sf::Color::White);
 		Choice3_CurrentText.setOutlineColor(sf::Color::Black);
 		Choice3_CurrentText.setOutlineThickness(3.0f);
-		Choice3_CurrentText.setPosition(420.0f, 150.0f+delta);
+		Choice3_CurrentText.setPosition(420.0f, 120.0f+delta);
 		Choice3_CurrentText.setCharacterSize(24);
 		Choice3_CurrentText.setStyle(sf::Text::Bold );
 
@@ -877,8 +951,8 @@ float delta = 80.0f;
 		Choice3_Artist.setString(root[song_choice[3]]["artist"].asString());
 		Choice3_Artist.setColor(sf::Color::Red);
 		Choice3_Artist.setOutlineColor(sf::Color::Black);
-		Choice3_Artist.setOutlineThickness(3.0f);
-		Choice3_Artist.setPosition(420.0f, 180.0f+delta);
+		Choice3_Artist.setOutlineThickness(2.0f);
+		Choice3_Artist.setPosition(420.0f, 150.0f+delta);
 		Choice3_Artist.setCharacterSize(20);
 		Choice3_Artist.setStyle(sf::Text::Bold);
 
@@ -886,8 +960,8 @@ float delta = 80.0f;
 		Choice3_Title.setString(root[song_choice[3]]["Song Name"].asString());
 		Choice3_Title.setColor(sf::Color::Red);
 		Choice3_Title.setOutlineColor(sf::Color::Black);
-		Choice3_Title.setOutlineThickness(3.0f);
-		Choice3_Title.setPosition(420.0f, 200.0f+delta);
+		Choice3_Title.setOutlineThickness(2.0f);
+		Choice3_Title.setPosition(420.0f, 170.0f+delta);
 		Choice3_Title.setCharacterSize(15);
 		Choice3_Title.setStyle(sf::Text::Bold);
 
@@ -905,7 +979,7 @@ float delta = 80.0f;
 		Choice4_CurrentText.setColor(sf::Color::White);
 		Choice4_CurrentText.setOutlineColor(sf::Color::Black);
 		Choice4_CurrentText.setOutlineThickness(3.0f);
-		Choice4_CurrentText.setPosition(610.0f, 250.0f+delta);
+		Choice4_CurrentText.setPosition(610.0f, 280.0f+delta);
 		Choice4_CurrentText.setCharacterSize(24);
 		Choice4_CurrentText.setStyle(sf::Text::Bold );
 
@@ -913,8 +987,8 @@ float delta = 80.0f;
 		Choice4_Artist.setString(root[song_choice[4]]["artist"].asString());
 		Choice4_Artist.setColor(sf::Color::Yellow);
 		Choice4_Artist.setOutlineColor(sf::Color::Black);
-		Choice4_Artist.setOutlineThickness(3.0f);
-		Choice4_Artist.setPosition(610.0f, 280.0f+delta);
+		Choice4_Artist.setOutlineThickness(2.0f);
+		Choice4_Artist.setPosition(610.0f, 310.0f+delta);
 		Choice4_Artist.setCharacterSize(20);
 		Choice4_Artist.setStyle(sf::Text::Bold);
 
@@ -922,8 +996,8 @@ float delta = 80.0f;
 		Choice4_Title.setString(root[song_choice[4]]["Song Name"].asString());
 		Choice4_Title.setColor(sf::Color::Yellow);
 		Choice4_Title.setOutlineColor(sf::Color::Black);
-		Choice4_Title.setOutlineThickness(3.0f);
-		Choice4_Title.setPosition(610.0f, 300.0f+delta);
+		Choice4_Title.setOutlineThickness(2.0f);
+		Choice4_Title.setPosition(610.0f, 330.0f+delta);
 		Choice4_Title.setCharacterSize(15);
 		Choice4_Title.setStyle(sf::Text::Bold);
 
