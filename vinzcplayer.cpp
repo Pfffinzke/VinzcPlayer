@@ -50,9 +50,12 @@ bool menu;
 bool next_bool;
 bool next_pushed = false;
 bool b_parsing;
+bool time_to_vote;
+float time_before_vote;
 
 sf::Clock clock_sprite;
 sf::Clock clock_autoplay;
+
 
 /*function... might want it in some class?*/
 
@@ -661,6 +664,16 @@ int main() {
 		//std::cout << "song time. " << song_lenght.asSeconds() << "remaining time :  " << elapsed.asSeconds() << std::endl;
 
 
+time_before_vote = start_voting_time - elapsed;
+
+if (time_before_vote >= 0)
+{time_to_vote=true;
+}
+else
+{time_to_vote=false;
+}
+
+
 		// propose 4 choices
 		if((elapsed >= start_voting_time)&&(elapsed <= end_voting_time)) {
 			choice = true;
@@ -817,6 +830,30 @@ int main() {
 		sf::String CurrentSongText = root[current_song]["Song Name"].asString();
 		sf::String CurrentArtistText = root[current_song]["artist"].asString();
 
+		sf::Text timevote;
+		sf::Text countdown;
+
+
+		timevote.setFont(font_neon);
+		timevote.setString("Next vote in :    s");
+		timevote.setColor(sf::Color::Red);
+		timevote.setPosition(400.0f, first_line+55);
+		timevote.setCharacterSize(20);
+		timevote.setStyle(sf::Text::Bold);
+		timevote.setOutlineColor(sf::Color::Black);
+		timevote.setOutlineThickness(3.0f);
+
+		countdown.setFont(font_neon);
+		countdown.setString(std::to_string((int)(time_before_vote)));
+		countdown.setColor(sf::Color::Red);
+		countdown.setPosition(540.0f, first_line+55);
+		countdown.setCharacterSize(20);
+		countdown.setStyle(sf::Text::Bold);
+		countdown.setOutlineColor(sf::Color::Black);
+		countdown.setOutlineThickness(3.0f);
+
+
+
 		Artist.setFont(font_neon);
 		Artist.setString(CurrentArtistText);
 		Artist.setColor(sf::Color::White);
@@ -893,7 +930,7 @@ float delta = 80.0f;
 
 		Choice1_Artist.setFont(font_neon);
 		Choice1_Artist.setString(root[song_choice[1]]["artist"].asString());
-		Choice1_Artist.setColor(sf::Color(55,55,255,255));
+		Choice1_Artist.setColor(sf::Color(85,85,255,255));
 		Choice1_Artist.setOutlineThickness(2.0f);
 		Choice1_Artist.setOutlineColor(sf::Color::Black);
 		Choice1_Artist.setPosition(40.0f, 150.0f+delta);
@@ -902,7 +939,7 @@ float delta = 80.0f;
 
 		Choice1_Title.setFont(font_neon);
 		Choice1_Title.setString(root[song_choice[1]]["Song Name"].asString());
-		Choice1_Title.setColor(sf::Color(55,55,255,255));
+		Choice1_Title.setColor(sf::Color(85,85,255,255));
 		Choice1_Title.setOutlineThickness(2.0f);
 		Choice1_Title.setOutlineColor(sf::Color::Black);
 		Choice1_Title.setPosition(40.0f, 170.0f+delta);
@@ -1079,10 +1116,6 @@ float delta = 80.0f;
 	if(choice==true){
 	  
 	  // voting buttons
-	  
-
-  
-
   
 //std::cout << "elapsed time" << clock_sprite.getElapsedTime().asSeconds() << std::endl;
     if (clock_sprite.getElapsedTime().asSeconds() > 1.0f){
@@ -1154,6 +1187,15 @@ float delta = 80.0f;
 		window.draw(Next_Title);
 		window.draw(Next_CurrentText);
 		}
+
+	if(time_to_vote==true)
+{
+
+		window.draw(timevote);
+		window.draw(countdown);
+		
+		}
+
 		
 		// Update the window
 		window.display();
