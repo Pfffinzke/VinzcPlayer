@@ -45,7 +45,7 @@ int vote[5]={0,0,0,0,0};
 int next_chosen_song;
 
 bool choice;
-bool next_button = true;
+bool next_button = false;
 bool menu;
 bool next_bool;
 bool next_pushed = false;
@@ -461,6 +461,10 @@ int main() {
 					  menu_path = "full";
 					  //root.clear();
 					  read_json(menu_path);
+					  break;
+					  
+					case sf::Keyboard::M:
+					  menu = false;
 					  break;
 					  
 					case sf::Keyboard::Escape:
